@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Register.css';
-// التأكد من استيراد الرابط من المجلد الأب (src)
-import API_BASE_URL from './config'; // تأكدي أنها نقطة واحدة وليست نقطتين
+import API_BASE_URL from './config'; 
+import logo from './remindme logo.jfif'; // تأكدي أن اسم الملف مطابق تماماً لما في المجلد
 
 const Register = ({ onLoginSuccess, switchToLogin }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
@@ -14,17 +14,14 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // استخدام الباكتيك `` لضمان دمج الرابط بشكل سليم
             const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
-            
             if (response.status === 201 || response.status === 200) {
                 alert("🚀 تم إنشاء الحساب بنجاح!");
                 onLoginSuccess(); 
             }
         } catch (error) {
             console.error("Connection Error:", error);
-            // إظهار الخطأ القادم من السيرفر إن وجد، وإلا تظهر رسالة التنبيه
-            const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكدي أن السيرفر يعمل بشكل صحيح على Render";
+            const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكدي من الاتصال";
             alert("❌ خطأ: " + errorMsg);
         }
     };
@@ -32,9 +29,13 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
     return (
         <div className="modern-container">
             <div className="glass-card">
-                <div className="tech-icon">🤖</div>
+                {/* إضافة اللوجو هنا */}
+                <div className="logo-container">
+                    <img src={logo} alt="RemindMe Logo" className="site-logo" />
+                </div>
+                
                 <h2>Remind<span>ME</span></h2>
-                <p>مستقبل التذكيرات الذكية</p>
+                <p style={{marginBottom: '20px'}}>مستقبل التذكيرات الذكية</p>
                 
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
@@ -50,7 +51,7 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
                 </form>
 
                 <p className="switch-text">
-                    لديك حساب بالفعل؟ <span onClick={switchToLogin} style={{cursor: 'pointer', color: 'var(--accent-color)'}}>سجل دخولك</span>
+                    لديك حساب بالفعل؟ <span onClick={switchToLogin} style={{cursor: 'pointer'}}>سجل دخولك</span>
                 </p>
             </div>
         </div>

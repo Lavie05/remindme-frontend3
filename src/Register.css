@@ -1,30 +1,74 @@
 /* Register.css */
 .modern-container {
-    background: radial-gradient(circle at center, #62109F 0%, #1a0429 100%); /* البنفسجي الملكي كخلفية */
+    background: radial-gradient(circle at center, #62109F 0%, #1a0429 100%);
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .glass-card {
-    background: rgba(98, 16, 159, 0.2); /* خلفية زجاجية بنفسجية */
+    background: rgba(98, 16, 159, 0.2);
     backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 222, 189, 0.2); /* حدود بلون البيج الناعم */
-    padding: 3rem;
+    border: 1px solid rgba(255, 222, 189, 0.2);
+    padding: 2.5rem;
     border-radius: 25px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     text-align: center;
-    color: #FFDEB9; /* النص باللون البيج */
+    color: #FFDEB9;
+    width: 100%;
+    max-width: 400px;
+}
+
+/* تنسيق اللوجو الجديد */
+.logo-container {
+    margin-bottom: 15px;
+}
+
+.site-logo {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(254, 98, 68, 0.4));
+    transition: transform 0.3s ease;
+}
+
+.site-logo:hover {
+    transform: scale(1.1);
+}
+
+h2 {
+    margin: 10px 0;
+    font-size: 2rem;
 }
 
 h2 span {
-    color: #FE6244; /* كلمة ME بالبرتقالي المشرق */
+    color: #FE6244;
     font-weight: bold;
+    text-shadow: 0 0 10px rgba(254, 98, 68, 0.3);
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    background: rgba(255, 222, 185, 0.1) !important;
+    border: 1px solid rgba(255, 222, 185, 0.3) !important;
+    color: #FFDEB9 !important;
+    border-radius: 10px !important;
+    padding: 12px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+input::placeholder {
+    color: rgba(255, 222, 185, 0.5);
 }
 
 .glow-button {
-    background: linear-gradient(45deg, #DC0E0E, #FE6244); /* تدرج من الأحمر للبرتقالي */
+    background: linear-gradient(45deg, #DC0E0E, #FE6244);
     color: white;
     border: none;
     padding: 12px 30px;
@@ -34,21 +78,21 @@ h2 span {
     cursor: pointer;
     transition: 0.3s all ease;
     box-shadow: 0 5px 15px rgba(220, 14, 14, 0.4);
-    margin-top: 20px;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .glow-button:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     box-shadow: 0 8px 25px rgba(254, 98, 68, 0.6);
 }
 
-input {
-    background: rgba(255, 222, 185, 0.1) !important;
-    border: 1px solid rgba(255, 222, 185, 0.3) !important;
-    color: #FFDEB9 !important;
-    border-radius: 10px !important;
+.switch-text {
+    margin-top: 20px;
+    font-size: 0.9rem;
 }
 
 .switch-text span {
     color: #FE6244;
+    font-weight: bold;
 }
