@@ -1,51 +1,54 @@
-/* هذا هو ملف الديكور الخاص بنا */
+/* Register.css */
 .modern-container {
+    background: radial-gradient(circle at center, #62109F 0%, #1a0429 100%); /* البنفسجي الملكي كخلفية */
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
-    font-family: sans-serif;
 }
 
 .glass-card {
-    background: rgba(22, 27, 34, 0.9);
-    border: 1px solid #30363d;
-    padding: 40px;
-    border-radius: 20px;
-    width: 350px;
+    background: rgba(98, 16, 159, 0.2); /* خلفية زجاجية بنفسجية */
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 222, 189, 0.2); /* حدود بلون البيج الناعم */
+    padding: 3rem;
+    border-radius: 25px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    color: #FFDEB9; /* النص باللون البيج */
 }
 
-h2 { color: #f0f6fc; }
-h2 span { color: #58a6ff; }
-
-input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 15px;
-    background: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    color: white;
-    box-sizing: border-box;
+h2 span {
+    color: #FE6244; /* كلمة ME بالبرتقالي المشرق */
+    font-weight: bold;
 }
 
 .glow-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 20px;
-    background: #238636;
+    background: linear-gradient(45deg, #DC0E0E, #FE6244); /* تدرج من الأحمر للبرتقالي */
     color: white;
     border: none;
-    border-radius: 8px;
-    font-weight: bold;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.3s all ease;
+    box-shadow: 0 5px 15px rgba(220, 14, 14, 0.4);
+    margin-top: 20px;
 }
 
 .glow-button:hover {
-    background: #2ea043;
-    transform: scale(1.02);
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(254, 98, 68, 0.6);
+}
+
+input {
+    background: rgba(255, 222, 185, 0.1) !important;
+    border: 1px solid rgba(255, 222, 185, 0.3) !important;
+    color: #FFDEB9 !important;
+    border-radius: 10px !important;
+}
+
+.switch-text span {
+    color: #FE6244;
 }
