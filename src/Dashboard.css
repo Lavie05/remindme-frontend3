@@ -1,70 +1,70 @@
-.modern-bg {
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* تدرج لوني فخم */
+.modern-gradient {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   min-height: 100vh;
-  padding: 40px 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 40px;
+  color: white;
 }
-
-.dashboard-header h1 {
-  color: #fff;
-  font-size: 2.5rem;
-  text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-}
-
-.subtitle { color: #ccc; margin-bottom: 30px; }
 
 .reminders-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
+  margin-top: 40px;
 }
 
-.modern-card {
-  border-radius: 20px;
-  padding: 25px;
+.add-card-modern {
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.37);
 }
 
-.input-group {
+.input-with-mic {
   position: relative;
   margin: 20px 0;
 }
 
-.input-group input {
+.input-with-mic input {
   width: 100%;
-  padding: 12px 45px 12px 15px;
-  border-radius: 10px;
+  padding: 12px 15px;
+  border-radius: 12px;
   border: none;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
-.mic-icon-btn {
+.mic-btn-modern {
   position: absolute;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
-.save-btn {
+.save-btn-modern {
   width: 100%;
-  padding: 10px;
-  border-radius: 10px;
+  padding: 12px;
+  border-radius: 12px;
   background: #28a745;
   color: white;
   border: none;
   font-weight: bold;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-.shadow-animation:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+.reminder-card-modern {
+  padding: 25px;
+  border-radius: 20px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.reminder-card-modern:hover {
+  transform: translateY(-10px);
 }
