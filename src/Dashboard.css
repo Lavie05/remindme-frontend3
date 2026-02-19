@@ -1,120 +1,50 @@
 .dashboard-container {
-    display: flex;
-    height: 100vh;
-    background: #010409;
-    color: #f0f6fc;
-    font-family: 'Inter', sans-serif;
+  padding: 20px;
+  background-color: #000000; /* خلفية الصفحة سوداء كما في صورتك */
+  min-height: 100vh;
 }
 
-.side-nav {
-    width: 250px;
-    background: #0d1117;
-    border-right: 1px solid #30363d;
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
+.reminders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
 }
 
-.logo { font-size: 1.5rem; font-weight: bold; margin-bottom: 3rem; }
-.logo span { color: #58a6ff; }
-
-.nav-items button {
-    width: 100%;
-    background: none;
-    border: none;
-    color: #8b949e;
-    padding: 1rem;
-    text-align: right;
-    cursor: pointer;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
+.reminder-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 180px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-.nav-items button.active { background: #161b22; color: #58a6ff; }
-
-.content { flex: 1; padding: 3rem; overflow-y: auto; }
-
-.reminder-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
+.reminder-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
 }
 
-.reminder-card, .add-card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    padding: 1.5rem;
-    border-radius: 12px;
-    transition: 0.3s;
+.time-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
 }
 
-.add-card input {
-    width: 100%;
-    padding: 10px;
-    background: #0d1117;
-    border: 1px solid #30363d;
-    color: white;
-    margin: 1rem 0;
-    border-radius: 6px;
+.card-body h3 {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin: 15px 0;
 }
 
-.add-btn {
-    width: 100%;
-    background: #238636;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.time { color: #58a6ff; font-weight: bold; margin-bottom: 0.5rem; }
-.input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.input-wrapper input {
-    width: 100%;
-    padding: 12px 45px 12px 12px !important; /* مساحة للميكروفون */
-}
-
-.mic-btn {
-    position: absolute;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: 0.3s;
-    z-index: 5;
-}
-
-/* تأثير النبض عند التسجيل */
-.pulse {
-    animation: pulse-animation 1.5s infinite;
-    filter: drop-shadow(0 0 5px #ff4b2b);
-}
-
-@keyframes pulse-animation {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-.card-actions button {
-    background: #1c2128;
-    border: 1px solid #30363d;
-    margin-left: 5px;
-    padding: 5px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.card-actions button:hover {
-    background: #30363d;
+/* تنسيق بطاقة الإضافة لتكون مميزة */
+.add-reminder-card {
+  border: 2px dashed #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
