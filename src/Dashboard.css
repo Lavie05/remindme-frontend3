@@ -1,70 +1,53 @@
-.modern-gradient {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+.login-theme-bg {
+  background: linear-gradient(135deg, #2D0B5A 0%, #1A0533 100%); /* البنفسجي من صفحة الدخول */
   min-height: 100vh;
   padding: 40px;
   color: white;
 }
 
-.reminders-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
-  margin-top: 40px;
-}
-
 .add-card-modern {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.37);
+  border-radius: 24px;
 }
 
-.input-with-mic {
-  position: relative;
-  margin: 20px 0;
-}
-
-.input-with-mic input {
-  width: 100%;
-  padding: 12px 15px;
-  border-radius: 12px;
-  border: none;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.mic-btn-modern {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
-.save-btn-modern {
+.login-style-btn {
   width: 100%;
   padding: 12px;
   border-radius: 12px;
-  background: #28a745;
+  background: #FE6244; /* البرتقالي من صفحة الدخول */
   color: white;
   border: none;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  box-shadow: 0 4px 15px rgba(254, 98, 68, 0.4);
+  transition: 0.3s ease;
+}
+
+.login-style-btn:hover {
+  transform: scale(1.02);
+  background: #E5563B;
 }
 
 .reminder-card-modern {
   padding: 25px;
   border-radius: 20px;
-  transition: transform 0.3s ease;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
-.reminder-card-modern:hover {
-  transform: translateY(-10px);
+.shadow-glow:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transform: translateY(-8px);
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 5px;
 }

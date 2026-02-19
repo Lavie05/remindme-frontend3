@@ -3,24 +3,24 @@ import './Dashboard.css';
 
 const Dashboard = ({ reminders, onAddReminder }) => {
   const [inputValue, setInputValue] = useState("");
-  const cardColors = ["#62109F", "#DC0E0E", "#FE6244", "#FFDEB9"];
+  // مصفوفة ألوان مستوحاة من صفحة تسجيل الدخول الخاصة بكِ
+  const cardColors = ["#62109F", "#4B0082", "#FE6244", "#FF8C00"];
 
   const handleSave = () => {
     if (inputValue.trim()) {
       onAddReminder(inputValue);
-      setInputValue(""); // مسح الحقل بعد الإضافة
+      setInputValue("");
     }
   };
 
   return (
-    <div className="dashboard-container modern-gradient">
+    <div className="dashboard-container login-theme-bg">
       <div className="dashboard-header">
-        <h1>أهلاً بك 👋</h1>
+        <h1>أهلاً بكِ، فنانة البرمجة 👋</h1>
         <p>لديك {reminders?.length || 0} تذكيرات ذكية اليوم</p>
       </div>
 
       <div className="reminders-grid">
-        {/* بطاقة الإضافة العصرية */}
         <div className="add-card-modern">
           <h3>إضافة تذكير ذكي +</h3>
           <div className="input-with-mic">
@@ -28,29 +28,26 @@ const Dashboard = ({ reminders, onAddReminder }) => {
               type="text" 
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="اكتب هنا أو استخدمي الصوت..." 
+              placeholder="ماذا نخطط اليوم؟" 
             />
             <button className="mic-btn-modern">🎙️</button>
           </div>
-          <button className="save-btn-modern" onClick={handleSave}>حفظ التذكير</button>
+          <button className="login-style-btn" onClick={handleSave}>حفظ التذكير</button>
         </div>
 
-        {/* عرض التذكيرات الملونة */}
         {reminders && reminders.map((reminder, index) => {
           const bgColor = cardColors[index % cardColors.length];
-          const txtColor = bgColor === "#FFDEB9" ? "#000000" : "#FFFFFF";
-
           return (
             <div 
               key={reminder._id || index} 
-              className="reminder-card-modern" 
-              style={{ backgroundColor: bgColor, color: txtColor }}
+              className="reminder-card-modern shadow-glow" 
+              style={{ backgroundColor: bgColor, color: '#FFFFFF' }}
             >
               <div className="card-time">{reminder.time || "الآن"}</div>
               <div className="card-text"><h3>{reminder.text}</h3></div>
               <div className="card-actions-modern">
-                <span>✅</span>
-                <span>🗑️</span>
+                <button className="icon-btn">✅</button>
+                <button className="icon-btn">🗑️</button>
               </div>
             </div>
           );
