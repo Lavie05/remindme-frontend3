@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Register.css';
+import API_BASE_URL from './config'; // استيراد الرابط من ملف config
 
-const Register = ({ onLoginSuccess }) => {
+const Register = ({ onLoginSuccess, switchToLogin }) => { // أضفنا switchToLogin لتمكين التنقل
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
 
     const handleChange = (e) => {
@@ -12,8 +13,8 @@ const Register = ({ onLoginSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // ✅ تم التعديل: استبدال localhost برابط Render العالمي الخاص بكِ
-            const response = await axios.post('https://remindme-backend3.onrender.com/api/auth/register', formData);
+            // ✅ استخدام API_BASE_URL بدلاً من كتابة الرابط يدوياً
+            const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
             
             if (response.status === 201 || response.status === 200) {
                 alert("🚀 تم إنشاء الحساب بنجاح!");
@@ -45,6 +46,11 @@ const Register = ({ onLoginSuccess }) => {
                     </div>
                     <button type="submit" className="glow-button">انضم الآن</button>
                 </form>
+
+                {/* زر إضافي للعودة لصفحة الدخول إذا كان لديه حساب */}
+                <p className="switch-text">
+                    لديك حساب بالفعل؟ <span onClick={switchToLogin} style={{cursor: 'pointer', color: 'var(--accent-color)'}}>سجل دخولك</span>
+                </p>
             </div>
         </div>
     );
