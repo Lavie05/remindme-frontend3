@@ -1,89 +1,40 @@
-import React, { useState } from 'react';
-import './Dashboard.css';
+// 1. عرفي مصفوفة الألوان خارج أو داخل المكون
+const cardColors = ["#62109F", "#DC0E0E", "#FE6244", "#FFDEB9"];
 
-const Dashboard = () => {
-    const [reminders, setReminders] = useState([
-        { id: 1, text: "مراجعة مشروع React", time: "10:00 PM" },
-        { id: 2, text: "جلسة برمجة مع Gemini", time: "11:30 PM" }
-    ]);
-    const [inputValue, setInputValue] = useState("");
-    const [isRecording, setIsRecording] = useState(false);
+// ... داخل المكون (Component) وفي جزء الـ Return ...
 
-    // دالة التسجيل الصوتي الذكي
-    const startRecording = () => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("عذراً، متصفحك لا يدعم خاصية التعرف على الصوت.");
-            return;
-        }
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'ar-SA'; // دعم اللغة العربية
-        
-        recognition.onstart = () => setIsRecording(true);
-        recognition.onend = () => setIsRecording(false);
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            setInputValue(transcript); // وضع النص المسجل في الخانة تلقائياً
-        };
-
-        recognition.start();
-    };
+<div className="reminders-grid">
+  {reminders.map((reminder, index) => {
+    // اختيار اللون بناءً على الترتيب
+    const backgroundColor = cardColors[index % cardColors.length];
+    
+    // اجعل لون النص أسود إذا كان لون الخلفية فاتحاً (#FFDEB9) لسهولة القراءة
+    const textColor = backgroundColor === "#FFDEB9" ? "#000000" : "#FFFFFF";
 
     return (
-        <div className="dashboard-container">
-            <nav className="side-nav">
-                <div className="logo">Remind<span>ME</span></div>
-                <div className="nav-items">
-                    <button className="active">🏠 الرئيسية</button>
-                    <button>📅 تقويمي</button>
-                    <button>⚙️ الإعدادات</button>
-                </div>
-                <button className="logout-btn">تسجيل الخروج</button>
-            </nav>
-
-            <main className="content">
-                <header>
-                    <h1>أهلاً بك، <span>فنانة البرمجة</span> 👋</h1>
-                    <p>لديك {reminders.length} تذكيرات ذكية اليوم.</p>
-                </header>
-
-                <div className="reminder-grid">
-                    <div className="add-card">
-                        <h3>➕ إضافة تذكير ذكي</h3>
-                        <div className="input-wrapper">
-                            <input 
-                                type="text" 
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                placeholder="اكتبي تذكيراً أو استخدمي الميكروفون..." 
-                            />
-                            <button 
-                                className={`mic-btn ${isRecording ? 'pulse' : ''}`} 
-                                onClick={startRecording}
-                                title="سجلي صوتك"
-                            >
-                                {isRecording ? '🛑' : '🎙️'}
-                            </button>
-                        </div>
-                        <button className="add-btn">حفظ التذكير</button>
-                    </div>
-
-                    {reminders.map(item => (
-                        <div key={item.id} className="reminder-card">
-                            <div className="time">{item.time}</div>
-                            <p>{item.text}</p>
-                            <div className="card-actions">
-                                <button className="action-check">✔️</button>
-                                <button className="action-delete">🗑️</button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </main>
+      <div 
+        key={reminder._id} 
+        className="reminder-card" 
+        style={{ 
+          backgroundColor: backgroundColor, 
+          color: textColor,
+          padding: '20px',
+          borderRadius: '15px',
+          marginBottom: '15px',
+          transition: 'transform 0.3s ease'
+        }}
+      >
+        <div className="card-header">
+          <span className="time-badge">{reminder.time}</span>
         </div>
+        <div className="card-body">
+          <h3>{reminder.text}</h3>
+        </div>
+        <div className="card-footer">
+          <button className="check-btn">✅</button>
+          <button className="delete-btn">🗑️</button>
+        </div>
+      </div>
     );
-};
-
-export default Dashboard;
+  })}
+</div>
