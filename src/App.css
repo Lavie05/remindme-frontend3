@@ -1,63 +1,66 @@
-/* الألوان الأساسية */
 :root {
-  --bg-main: #f0f2f5;
-  --text-main: #1c1e21;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --accent-color: #58a6ff;
-  --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  /* المتغيرات اللونية الجديدة */
+  --primary-bg: #62109F;
+  --accent-red: #DC0E0E;
+  --accent-orange: #FE6244;
+  --text-soft: #FFDEB9;
+  --glass-bg: rgba(98, 16, 159, 0.4);
 }
 
-/* ألوان الوضع الداكن */
-[data-theme='dark'] {
-  --bg-main: #0d1117;
-  --text-main: #c9d1d9;
-  --glass-bg: rgba(22, 27, 34, 0.8);
-  --accent-color: #1f6feb;
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-}
-
-/* تطبيق الألوان على الخلفية العامة */
 body {
-  background-color: var(--bg-main) !important;
-  color: var(--text-main);
-  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
   margin: 0;
+  padding: 0;
+  /* خلفية فخمة بتدرج لوني انسيابي */
+  background: radial-gradient(circle at top left, #62109F, #1a0429);
+  color: var(--text-soft);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
 }
 
-/* زر التبديل العائم - تحسين الشكل والأنيميشن */
-.dark-mode-toggle {
-  position: fixed;
-  top: 25px;
-  right: 25px;
-  z-index: 9999;
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px); /* تأثير التغبيش الزجاجي */
-  -webkit-backdrop-filter: blur(10px);
-  color: var(--text-main);
-  cursor: pointer;
-  box-shadow: var(--card-shadow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-
-.dark-mode-toggle:hover {
-  transform: scale(1.1) rotate(15deg);
-  background: var(--accent-color);
-  color: white;
-}
-
-/* إضافة تأثير الزجاج للكروت */
+/* تأثير البطاقة الزجاجية Modern Glassmorphism */
 .glass-card {
-  background: var(--glass-bg) !important;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: var(--card-shadow);
-  color: var(--text-main) !important;
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 222, 185, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  padding: 40px;
+  color: var(--text-soft);
+}
+
+/* الزر المشرق (البرتقالي الفخم) */
+.glow-button {
+  background: linear-gradient(45deg, var(--accent-orange), var(--accent-red));
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 15px rgba(254, 98, 68, 0.4);
+}
+
+.glow-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(254, 98, 68, 0.6);
+}
+
+/* تنسيق النصوص */
+h2 span {
+  color: var(--accent-orange);
+  text-shadow: 0 0 10px rgba(254, 98, 68, 0.5);
+}
+
+input {
+  background: rgba(255, 222, 185, 0.05);
+  border: 1px solid var(--text-soft);
+  color: var(--text-soft);
+  padding: 10px;
+  border-radius: 8px;
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(255, 222, 185, 0.5);
 }
