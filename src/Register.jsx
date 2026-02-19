@@ -14,16 +14,15 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // ✅ تم التعديل: إضافة /api ليتوافق مع مسارات السيرفر لديكِ
-            const response = await axios.post(`${API_BASE_URL}/api/auth/register`, formData);
-            
+            // ✅ تم التعديل: استدعاء الرابط من config مباشرة دون تكرار /api
+            const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
             if (response.status === 201 || response.status === 200) {
                 alert("🚀 تم إنشاء الحساب بنجاح!");
                 onLoginSuccess(); 
             }
         } catch (error) {
             console.error("Connection Error:", error);
-            // تحسين رسالة الخطأ لتظهر السبب الحقيقي إذا كان السيرفر أرسل رداً
+            // جلب رسالة الخطأ الحقيقية من السيرفر إذا وجدت
             const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكدي من الاتصال";
             alert("❌ خطأ: " + errorMsg);
         }
