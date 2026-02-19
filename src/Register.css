@@ -1,0 +1,51 @@
+/* هذا هو ملف الديكور الخاص بنا */
+.modern-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #0d1117 0%, #010409 100%);
+    font-family: sans-serif;
+}
+
+.glass-card {
+    background: rgba(22, 27, 34, 0.9);
+    border: 1px solid #30363d;
+    padding: 40px;
+    border-radius: 20px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+
+h2 { color: #f0f6fc; }
+h2 span { color: #58a6ff; }
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: white;
+    box-sizing: border-box;
+}
+
+.glow-button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: #238636;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.glow-button:hover {
+    background: #2ea043;
+    transform: scale(1.02);
+}

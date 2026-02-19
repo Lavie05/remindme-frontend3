@@ -1,0 +1,120 @@
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    background: #010409;
+    color: #f0f6fc;
+    font-family: 'Inter', sans-serif;
+}
+
+.side-nav {
+    width: 250px;
+    background: #0d1117;
+    border-right: 1px solid #30363d;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.logo { font-size: 1.5rem; font-weight: bold; margin-bottom: 3rem; }
+.logo span { color: #58a6ff; }
+
+.nav-items button {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #8b949e;
+    padding: 1rem;
+    text-align: right;
+    cursor: pointer;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.nav-items button.active { background: #161b22; color: #58a6ff; }
+
+.content { flex: 1; padding: 3rem; overflow-y: auto; }
+
+.reminder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.reminder-card, .add-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    padding: 1.5rem;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.add-card input {
+    width: 100%;
+    padding: 10px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: white;
+    margin: 1rem 0;
+    border-radius: 6px;
+}
+
+.add-btn {
+    width: 100%;
+    background: #238636;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.time { color: #58a6ff; font-weight: bold; margin-bottom: 0.5rem; }
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 45px 12px 12px !important; /* مساحة للميكروفون */
+}
+
+.mic-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.3s;
+    z-index: 5;
+}
+
+/* تأثير النبض عند التسجيل */
+.pulse {
+    animation: pulse-animation 1.5s infinite;
+    filter: drop-shadow(0 0 5px #ff4b2b);
+}
+
+@keyframes pulse-animation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.card-actions button {
+    background: #1c2128;
+    border: 1px solid #30363d;
+    margin-left: 5px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.card-actions button:hover {
+    background: #30363d;
+}
