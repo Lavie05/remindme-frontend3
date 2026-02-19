@@ -16,7 +16,7 @@ const Dashboard = ({ reminders, onAddReminder }) => {
   return (
     <div className="dashboard-container login-theme-bg">
       <div className="dashboard-header">
-        <h1>أهلاً بكِ، فنانة البرمجة 👋</h1>
+        <h1>أهلاً بك👋</h1>
         <p>لديك {reminders?.length || 0} تذكيرات ذكية اليوم</p>
       </div>
 
