@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './Register.css';
 
-// أضفنا onLoginSuccess هنا كـ prop لاستدعائها عند النجاح
 const Register = ({ onLoginSuccess }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
 
@@ -13,17 +12,16 @@ const Register = ({ onLoginSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // تأكدي أن السيرفر يعمل على بورت 5000
-            const response = await axios.post('http://localhost:5000/auth/register', formData);
+            // ✅ تم التعديل: استبدال localhost برابط Render العالمي الخاص بكِ
+            const response = await axios.post('https://remindme-backend3.onrender.com/api/auth/register', formData);
             
             if (response.status === 201 || response.status === 200) {
                 alert("🚀 تم إنشاء الحساب بنجاح!");
-                onLoginSuccess(); // هذه الدالة ستغير الحالة في App.jsx وتنقلك للـ Dashboard
+                onLoginSuccess(); 
             }
         } catch (error) {
             console.error("Connection Error:", error);
-            // حل مشكلة الـ Timeout برمجياً هنا
-            const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكدي من تفعيل CORS في الباك-إند";
+            const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكدي أن السيرفر يعمل بشكل صحيح على Render";
             alert("❌ خطأ: " + errorMsg);
         }
     };

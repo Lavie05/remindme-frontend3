@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './Register.css'; // سنستخدم نفس التنسيق الجميل الذي صنعتِه
+import './Register.css'; 
 
 const Login = ({ onLoginSuccess, switchToRegister }) => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -8,10 +8,11 @@ const Login = ({ onLoginSuccess, switchToRegister }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // الطلب يذهب لمسار الـ login في السيرفر بورت 5000
-            const response = await axios.post('http://localhost:5000/auth/login', formData);
+            // ✅ تم التعديل: استبدال localhost برابط Render الجديد الخاص بكِ
+            const response = await axios.post('https://remindme-backend3.onrender.com/api/auth/login', formData);
+            
             alert("🔑 تم تسجيل الدخول بنجاح!");
-            onLoginSuccess(); // ينقلك للـ Dashboard
+            onLoginSuccess(); 
         } catch (error) {
             alert("❌ خطأ: " + (error.response?.data?.error || "بيانات الدخول غير صحيحة"));
         }
