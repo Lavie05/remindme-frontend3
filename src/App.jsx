@@ -1,30 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import './App.css'; // تأكدي من استيراد ملف التنسيق الجديد
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './Dashboard';
 
 function App() {
-  // حالة لتحديد هل المستخدم سجل دخوله أم لا
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  // حالة للتبديل بين واجهة الدخول (true) وواجهة التسجيل (false)
   const [showLogin, setShowLogin] = useState(true);
+  
+  // 1. إضافة حالة الثيم (يقرأ من ذاكرة المتصفح إذا كان موجوداً مسبقاً)
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
-  // إذا كان المستخدم مسجلاً، اظهر له الـ Dashboard مباشرة
+  // 2. تفعيل الثيم على الصفحة عند تغييره وحفظه في الذاكرة
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // 3. دالة تبديل الثيم
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  // إذا كان المستخدم مسجلاً
   if (isLoggedIn) {
-    return <Dashboard onLogout={() => setIsLoggedIn(false)} />;
+    return (
+      <>
+        {/* زر التبديل يظهر أيضاً في الـ Dashboard */}
+        <button onClick={toggleTheme} className="dark-mode-toggle">
+          {theme === 'light' ? '🌙' : '☀️'}
+        </button>
+        <Dashboard onLogout={() => setIsLoggedIn(false)} />
+      </>
+    );
   }
 
   return (
     <div className="App">
+      {/* زر التبديل يظهر في صفحات الدخول والتسجيل */}
+      <button onClick={toggleTheme} className="dark-mode-toggle">
+        {theme === 'light' ? '🌙' : '☀️'}
+      </button>
+
       {showLogin ? (
-        /* واجهة تسجيل الدخول */
         <Login 
           onLoginSuccess={() => setIsLoggedIn(true)} 
           switchToRegister={() => setShowLogin(false)} 
         />
       ) : (
-        /* واجهة إنشاء حساب جديد */
         <Register 
           onLoginSuccess={() => setIsLoggedIn(true)} 
           switchToLogin={() => setShowLogin(true)} 
