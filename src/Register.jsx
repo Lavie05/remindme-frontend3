@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './Register.css';
 // التأكد من استيراد الرابط من المجلد الأب (src)
-import API_BASE_URL from '../config'; 
+import API_BASE_URL from './config'; // تأكدي أنها نقطة واحدة وليست نقطتين
 
 const Register = ({ onLoginSuccess, switchToLogin }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
