@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Register.css';
-import API_BASE_URL from './config'; // استيراد الرابط من ملف config
+// التأكد من استيراد الرابط من المجلد الأب (src)
+import API_BASE_URL from '../config'; 
 
-const Register = ({ onLoginSuccess, switchToLogin }) => { // أضفنا switchToLogin لتمكين التنقل
+const Register = ({ onLoginSuccess, switchToLogin }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
 
     const handleChange = (e) => {
@@ -13,7 +14,7 @@ const Register = ({ onLoginSuccess, switchToLogin }) => { // أضفنا switchTo
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // ✅ استخدام API_BASE_URL بدلاً من كتابة الرابط يدوياً
+            // استخدام الباكتيك `` لضمان دمج الرابط بشكل سليم
             const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
             
             if (response.status === 201 || response.status === 200) {
@@ -22,6 +23,7 @@ const Register = ({ onLoginSuccess, switchToLogin }) => { // أضفنا switchTo
             }
         } catch (error) {
             console.error("Connection Error:", error);
+            // إظهار الخطأ القادم من السيرفر إن وجد، وإلا تظهر رسالة التنبيه
             const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكدي أن السيرفر يعمل بشكل صحيح على Render";
             alert("❌ خطأ: " + errorMsg);
         }
@@ -47,7 +49,6 @@ const Register = ({ onLoginSuccess, switchToLogin }) => { // أضفنا switchTo
                     <button type="submit" className="glow-button">انضم الآن</button>
                 </form>
 
-                {/* زر إضافي للعودة لصفحة الدخول إذا كان لديه حساب */}
                 <p className="switch-text">
                     لديك حساب بالفعل؟ <span onClick={switchToLogin} style={{cursor: 'pointer', color: 'var(--accent-color)'}}>سجل دخولك</span>
                 </p>
