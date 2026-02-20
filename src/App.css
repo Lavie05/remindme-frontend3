@@ -1,5 +1,5 @@
 :root {
-  /* المتغيرات اللونية الجديدة */
+  /* المتغيرات اللونية الأصلية الخاصة بك */
   --primary-bg: #62109F;
   --accent-red: #DC0E0E;
   --accent-orange: #FE6244;
@@ -10,57 +10,122 @@
 body {
   margin: 0;
   padding: 0;
-  /* خلفية فخمة بتدرج لوني انسيابي */
   background: radial-gradient(circle at top left, #62109F, #1a0429);
   color: var(--text-soft);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100vh;
 }
 
-/* تأثير البطاقة الزجاجية Modern Glassmorphism */
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 222, 185, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  border-radius: 20px;
-  padding: 40px;
-  color: var(--text-soft);
+/* حاوية لوحة التحكم */
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* الزر المشرق (البرتقالي الفخم) */
-.glow-button {
+/* النافبار الزجاجي */
+.dashboard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 222, 185, 0.1);
+}
+
+/* أزرار الأكشن (التسجيل والرفع) */
+.ai-actions-wrapper {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* زر الميكروفون المطور */
+.ai-record-btn {
   background: linear-gradient(45deg, var(--accent-orange), var(--accent-red));
   color: white;
   border: none;
   padding: 12px 25px;
-  border-radius: 10px;
+  border-radius: 50px;
   font-weight: bold;
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(254, 98, 68, 0.4);
 }
 
-.glow-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(254, 98, 68, 0.6);
+.ai-record-btn.active {
+  background: #ff0000;
+  animation: pulse-red 1.5s infinite;
 }
 
-/* تنسيق النصوص */
-h2 span {
-  color: var(--accent-orange);
-  text-shadow: 0 0 10px rgba(254, 98, 68, 0.5);
-}
-
-input {
-  background: rgba(255, 222, 185, 0.05);
-  border: 1px solid var(--text-soft);
+/* زر رفع الملفات الزجاجي */
+.upload-label {
+  background: rgba(255, 222, 185, 0.1);
   color: var(--text-soft);
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px 25px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 1px dashed var(--accent-orange);
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.upload-label:hover {
+  background: rgba(254, 98, 68, 0.2);
+  border-style: solid;
+}
+
+/* بطاقات المهام (التلخيصات) */
+.task-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 222, 185, 0.1);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 15px;
+  position: relative;
+  transition: 0.3s;
+}
+
+.task-card:hover {
+  transform: scale(1.02);
+  background: rgba(98, 16, 159, 0.6);
+}
+
+/* أولويات البطاقات */
+.prio-high { border-right: 5px solid var(--accent-red); }
+.prio-medium { border-right: 5px solid var(--accent-orange); }
+.prio-low { border-right: 5px solid #50CB93; }
+
+/* فورم الإضافة اليدوية */
+.add-task-form {
+  display: flex;
+  gap: 10px;
+  margin: 30px 0;
+}
+
+.add-task-form input {
+  flex: 1;
+  background: rgba(255, 222, 185, 0.05);
+  border: 1px solid rgba(255, 222, 185, 0.3);
+  color: var(--text-soft);
+  padding: 12px;
+  border-radius: 10px;
   outline: none;
 }
 
-input::placeholder {
-  color: rgba(255, 222, 185, 0.5);
+/* الأنيميشن */
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+.processing {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(0.5);
 }

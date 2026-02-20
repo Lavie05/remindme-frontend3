@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import './Dashboard.css';
 
-// التعديل 1: استخدام استدعاء Vite للمتغيرات البيئية
+// إعداد Gemini API باستخدام Vite Env
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -17,6 +17,60 @@ const Dashboard = ({ onLogout }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
+    // دالة مساعدة لتحويل الملف إلى Base64
+    const fileToGenerativePart = async (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve({
+                inlineData: {
+                    data: reader.result.split(',')[1],
+                    mimeType: file.type
+                },
+            });
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
+    // --- وظيفة رفع الملف الصوتي وتحليله ---
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('audio/')) {
+            alert("يرجى اختيار ملف صوتي مدعوم (MP3, WAV, M4A).");
+            return;
+        }
+
+        setIsProcessing(true);
+
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const audioData = await fileToGenerativePart(file);
+            
+            const prompt = "أنت مساعد ذكي للمذاكرة. استمع لهذا الملف الصوتي وقم بتلخيصه في نقاط رئيسية واضحة ومنظمة باللغة العربية، مع ذكر أهم المعلومات التي وردت فيه.";
+            
+            const result = await model.generateContent([prompt, audioData]);
+            const response = await result.response;
+            const summaryText = response.text();
+
+            const aiNote = {
+                id: Date.now(),
+                text: `📁 ملخص ملف: ${file.name}\n\n${summaryText}`,
+                priority: "high",
+                time: "AI Audio Analysis ✨"
+            };
+            setTasks(prev => [aiNote, ...prev]);
+        } catch (error) {
+            console.error("File Analysis Error:", error);
+            alert("فشل الذكاء الاصطناعي في تحليل الملف. تأكد من حجم الملف والاتصال.");
+        } finally {
+            setIsProcessing(false);
+            e.target.value = null; // إعادة تصغير المدخلات
+        }
+    };
+
+    // --- وظيفة التسجيل الصوتي المباشر (Speech to Text) ---
     useEffect(() => {
         if (!recognition) return;
 
@@ -31,21 +85,18 @@ const Dashboard = ({ onLogout }) => {
 
             try {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                
-                // برومبت (Prompt) محسن للحصول على نتائج منسقة
-                const prompt = `قم بتلخيص النص التالي المستخرج من تسجيل صوتي لمحاضرة. اجعل التلخيص على شكل نقاط واضحة ومختصرة باللغة العربية: "${transcript}"`;
+                const prompt = `قم بتلخيص النص التالي بأسلوب نقاط مختصره باللغة العربية: "${transcript}"`;
                 
                 const result = await model.generateContent(prompt);
                 const response = await result.response;
                 const summaryText = response.text();
 
-                const aiNote = {
+                setTasks(prev => [{
                     id: Date.now(),
                     text: summaryText, 
                     priority: "high",
-                    time: "AI Summary ✨"
-                };
-                setTasks(prev => [aiNote, ...prev]);
+                    time: "AI Live Summary ✨"
+                }, ...prev]);
             } catch (error) {
                 console.error("Gemini Error:", error);
                 setTasks(prev => [{
@@ -64,16 +115,9 @@ const Dashboard = ({ onLogout }) => {
     }, []);
 
     const toggleRecording = () => {
-        if (!recognition) {
-            alert("المتصفح لا يدعم التسجيل الصوتي.");
-            return;
-        }
-        if (isRecording) {
-            recognition.stop();
-        } else {
-            setIsRecording(true);
-            recognition.start();
-        }
+        if (!recognition) return alert("المتصفح لا يدعم التسجيل.");
+        isRecording ? recognition.stop() : recognition.start();
+        if (!isRecording) setIsRecording(true);
     };
 
     const addTask = (e) => {
@@ -88,16 +132,12 @@ const Dashboard = ({ onLogout }) => {
         setNewTask("");
     };
 
-    const deleteTask = (id) => {
-        setTasks(tasks.filter(task => task.id !== id));
-    };
+    const deleteTask = (id) => setTasks(tasks.filter(task => task.id !== id));
 
     return (
         <div className="dashboard-container">
             <nav className="dashboard-nav">
-                <div className="nav-logo">
-                    <h3>Remind<span>ME</span></h3>
-                </div>
+                <div className="nav-logo"><h3>Remind<span>ME</span></h3></div>
                 <button className="logout-btn" onClick={onLogout}>تسجيل الخروج</button>
             </nav>
 
@@ -108,23 +148,35 @@ const Dashboard = ({ onLogout }) => {
                         <p>لديك <span>{tasks.length}</span> عناصر</p>
                     </motion.div>
 
-                    <div className="ai-record-wrapper">
+                    <div className="ai-actions-wrapper" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        {/* زر التسجيل المباشر */}
                         <motion.button 
                             whileTap={{ scale: 0.9 }}
                             onClick={toggleRecording}
                             disabled={isProcessing}
                             className={`ai-record-btn ${isRecording ? 'active' : ''} ${isProcessing ? 'processing' : ''}`}
                         >
-                            {isProcessing ? "جاري التلخيص... ✨" : isRecording ? "إيقاف التسجيل ⏹️" : "تسجيل محاضرة 🎙️"}
+                            {isRecording ? "إيقاف ⏹️" : "تسجيل مباشر 🎙️"}
                         </motion.button>
-                        {isRecording && <span className="recording-dot"></span>}
+
+                        {/* زر رفع الملف الصوتي */}
+                        <label className={`upload-label ${isProcessing ? 'disabled' : ''}`}>
+                            {isProcessing ? "جاري المعالجة... ✨" : "رفع تسجيل 📁"}
+                            <input 
+                                type="file" 
+                                accept="audio/*" 
+                                onChange={handleFileUpload} 
+                                disabled={isProcessing}
+                                style={{ display: 'none' }} 
+                            />
+                        </label>
                     </div>
                 </div>
 
                 <form className="add-task-form" onSubmit={addTask}>
                     <input 
                         type="text" 
-                        placeholder="أضف مهمة أو ملاحظة..."
+                        placeholder="أضف مهمة يدوية..."
                         value={newTask}
                         onChange={(e) => setNewTask(e.target.value)}
                     />
@@ -148,7 +200,6 @@ const Dashboard = ({ onLogout }) => {
                                 className={`task-card prio-${task.priority}`}
                             >
                                 <div className="task-info">
-                                    {/* التعديل 2: معالجة النص القادم من الـ AI ليدعم الأسطر الجديدة */}
                                     <h4 style={{ whiteSpace: 'pre-line' }}>{task.text}</h4>
                                     <span className="task-time">⏰ {task.time}</span>
                                 </div>
