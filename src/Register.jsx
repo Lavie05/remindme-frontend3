@@ -3,34 +3,35 @@ import axios from 'axios';
 import './Register.css';
 import API_BASE_URL from './config'; 
 import logo from './remindme logo.jfif'; 
+// استيراد الأيقونات
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 
 const Register = ({ onLoginSuccess, switchToLogin }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
-    // الحالة الجديدة للتحميل
     const [loading, setLoading] = useState(false); 
+    const [errorMsg, setErrorMsg] = useState('');
+    // الحالة الجديدة لإظهار/إخفاء كلمة المرور
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        if (errorMsg) setErrorMsg('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // تفعيل حالة التحميل عند بدء الطلب
+        setErrorMsg('');
         setLoading(true); 
 
         try {
             const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
             if (response.status === 201 || response.status === 200) {
-                alert("🚀 تم إنشاء الحساب بنجاح!");
                 onLoginSuccess(); 
             }
         } catch (error) {
-            console.error("Connection Error:", error);
-            const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكد من الاتصال";
-            alert("❌ خطأ: " + errorMsg);
+            const serverError = error.response?.data?.error || "تعذر الاتصال بالسيرفر";
+            setErrorMsg(serverError);
         } finally {
-            // إيقاف حالة التحميل سواء نجح أو فشل الطلب
             setLoading(false); 
         }
     };
@@ -43,7 +44,8 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
                 </div>
                 
                 <h2>Remind<span>ME</span></h2>
-                <p style={{marginBottom: '20px'}}>مستقبل التذكيرات الذكية</p>
+                
+                {errorMsg && <div className="error-message">{errorMsg}</div>}
                 
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
@@ -52,22 +54,31 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
                     <div className="input-group">
                         <input type="email" name="email" placeholder="البريد الإلكتروني" onChange={handleChange} required />
                     </div>
-                    <div className="input-group">
-                        <input type="password" name="password" placeholder="كلمة المرور" onChange={handleChange} required />
+                    
+                    {/* حقل كلمة المرور مع الأيقونة */}
+                    <div className="input-group password-wrapper">
+                        <input 
+                            type={showPassword ? "text" : "password"} 
+                            name="password" 
+                            placeholder="كلمة المرور" 
+                            onChange={handleChange} 
+                            required 
+                        />
+                        <span 
+                            className="password-icon" 
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </span>
                     </div>
 
-                    {/* تعديل الزر ليتفاعل مع حالة التحميل */}
-                    <button 
-                        type="submit" 
-                        className={`glow-button ${loading ? 'loading' : ''}`}
-                        disabled={loading}
-                    >
-                        {loading ? "جاري الإنشاء..." : "انضم الآن"}
+                    <button type="submit" className="glow-button" disabled={loading}>
+                        {loading ? "جاري المعالجة..." : "انضم الآن"}
                     </button>
                 </form>
 
                 <p className="switch-text">
-                    لديك حساب بالفعل؟ <span onClick={switchToLogin} style={{color: '#58a6ff', cursor: 'pointer', fontWeight: 'bold'}}>سجل دخولك</span>
+                    لديك حساب بالفعل؟ <span onClick={switchToLogin}>سجل دخولك</span>
                 </p>
             </div>
         </div>

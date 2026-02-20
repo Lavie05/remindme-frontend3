@@ -6,15 +6,15 @@
     justify-content: center;
     align-items: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 20px; /* مضاف لضمان عدم التصاق الكرت في الشاشات الصغيرة */
+    padding: 20px;
 }
 
 .glass-card {
     background: rgba(98, 16, 159, 0.2);
     backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px); /* لدعم متصفح Safari */
+    -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 222, 189, 0.2);
-    padding: 2.5rem;
+    padding: 2rem 2.5rem;
     border-radius: 25px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     text-align: center;
@@ -23,7 +23,7 @@
     max-width: 400px;
 }
 
-/* التنبيهات (رسائل الخطأ) - مضاف للنقطة القادمة */
+/* التنبيهات (رسائل الخطأ) */
 .error-message {
     background: rgba(220, 14, 14, 0.2);
     border: 1px solid #DC0E0E;
@@ -36,35 +36,58 @@
 }
 
 .logo-container {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .site-logo {
-    width: 100px;
+    width: 80px;
     height: auto;
     filter: drop-shadow(0 0 10px rgba(254, 98, 68, 0.4));
     transition: transform 0.3s ease;
 }
 
-.site-logo:hover {
-    transform: scale(1.1);
-}
-
 h2 {
-    margin: 10px 0;
-    font-size: 2rem;
+    margin: 5px 0;
+    font-size: 1.8rem;
 }
 
 h2 span {
     color: #FE6244;
     font-weight: bold;
-    text-shadow: 0 0 10px rgba(254, 98, 68, 0.3);
 }
 
 .input-group {
     margin-bottom: 15px;
+    position: relative;
 }
 
+/* حقل كلمة المرور والأيقونة */
+.password-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    padding-left: 45px; /* مساحة للأيقونة جهة اليسار */
+}
+
+.password-icon {
+    position: absolute;
+    left: 12px;
+    cursor: pointer;
+    color: rgba(255, 222, 185, 0.6);
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.password-icon:hover {
+    color: #FE6244;
+}
+
+/* تنسيق الـ Input العام */
 input {
     width: 100%;
     background: rgba(255, 222, 185, 0.1) !important;
@@ -74,18 +97,45 @@ input {
     padding: 12px;
     box-sizing: border-box;
     outline: none;
-    transition: border 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 input:focus {
     border-color: #FE6244 !important;
+    background: rgba(255, 222, 185, 0.15) !important;
 }
 
-input::placeholder {
-    color: rgba(255, 222, 185, 0.5);
+/* مقياس قوة كلمة المرور */
+.strength-bar-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin-top: -10px;
+    margin-bottom: 5px;
+    overflow: hidden;
 }
 
-/* تعديلات الزر */
+.strength-bar-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+/* ألوان شريط القوة */
+.strength-1, .strength-2 { width: 33%; background-color: #ff4d4d; }
+.strength-3 { width: 66%; background-color: #ffa500; }
+.strength-4, .strength-5 { width: 100%; background-color: #00ff88; }
+
+.strength-text-label {
+    font-size: 0.7rem;
+    text-align: left;
+    margin-bottom: 10px;
+    height: 12px;
+    color: rgba(255, 222, 185, 0.8);
+}
+
+/* الزر المضيء */
 .glow-button {
     background: linear-gradient(45deg, #DC0E0E, #FE6244);
     color: white;
@@ -98,26 +148,21 @@ input::placeholder {
     transition: 0.3s all ease;
     box-shadow: 0 5px 15px rgba(220, 14, 14, 0.4);
     width: 100%;
-    margin-top: 10px;
-    position: relative;
-    overflow: hidden;
+    margin-top: 5px;
 }
 
 .glow-button:hover:not(:disabled) {
-    transform: scale(1.02);
+    transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(254, 98, 68, 0.6);
 }
 
-/* حالة الزر أثناء التحميل */
 .glow-button:disabled {
-    background: #555;
+    background: #444;
     cursor: not-allowed;
+    opacity: 0.6;
     box-shadow: none;
-    opacity: 0.7;
-    transform: scale(1);
 }
 
-/* أنيميشن بسيط عند ظهور رسالة الخطأ */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
@@ -132,10 +177,9 @@ input::placeholder {
 .switch-text span {
     color: #FE6244;
     cursor: pointer;
-    transition: opacity 0.2s;
+    font-weight: bold;
 }
 
 .switch-text span:hover {
-    opacity: 0.8;
     text-decoration: underline;
 }
