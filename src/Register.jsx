@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast'; // ✅ إضافة التنبيهات الأنيقة
+import toast from 'react-hot-toast'; 
 import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import API_BASE_URL from './config'; 
 import logo from './remindme logo.jfif'; 
@@ -13,7 +13,6 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [strength, setStrength] = useState(0);
 
-    // دالة لتقييم قوة كلمة المرور (0 إلى 5)
     const evaluatePassword = (password) => {
         let score = 0;
         if (!password) return 0;
@@ -38,7 +37,14 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
         e.preventDefault();
         setErrorMsg('');
 
-        if (formData.password.length < 6) {
+        // ✅ تحسين: تنظيف البيانات من المسافات الزائدة
+        const dataToSend = {
+            username: formData.username.trim(),
+            email: formData.email.trim(),
+            password: formData.password
+        };
+
+        if (dataToSend.password.length < 6) {
             setErrorMsg("⚠️ كلمة المرور قصيرة جداً (6 أحرف على الأقل)");
             return;
         }
@@ -46,21 +52,21 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
         setLoading(true); 
 
         try {
-            // ✅ طلب التسجيل للسيرفر
-            const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
+            // ✅ المسار المحدث ليتوافق مع السيرفر:
+            // تأكدي أن API_BASE_URL في ملف config هو https://remindme-backend3.onrender.com/api
+            const response = await axios.post(`${API_BASE_URL}/auth/register`, dataToSend);
             
-            // ✅ التحقق من وجود التوكن وحفظه فوراً للدخول التلقائي
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
                 toast.success("✨ أهلاً بك في عالم RemindME!");
                 onLoginSuccess(); 
             } else {
-                // في حال كان السيرفر يتطلب تسجيل دخول يدوي بعد التسجيل
                 toast.success("تم إنشاء الحساب! سجل دخولك الآن 🚀");
                 switchToLogin();
             }
         } catch (error) {
-            const serverError = error.response?.data?.error || "تعذر الاتصال بالسيرفر، حاول مجدداً";
+            // ✅ تحسين التقاط رسالة الخطأ من السيرفر
+            const serverError = error.response?.data?.error || error.response?.data?.message || "تعذر الاتصال بالسيرفر، حاول مجدداً";
             setErrorMsg(serverError);
             toast.error(serverError);
         } finally {
