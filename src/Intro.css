@@ -1,0 +1,63 @@
+.intro-container {
+    background: #1a0429; /* لون غامق جداً مثل شاشة السينما */
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.intro-content {
+    position: relative;
+    text-align: center;
+}
+
+.intro-logo-img {
+    width: 180px; /* حجم كبير للبداية */
+    height: auto;
+    z-index: 2;
+    position: relative;
+    filter: drop-shadow(0 0 15px rgba(254, 98, 68, 0.3));
+}
+
+.logo-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(98, 16, 159, 0.6) 0%, transparent 70%);
+    filter: blur(30px);
+    z-index: 1;
+    animation: pulseGlow 2s infinite alternate;
+}
+
+.intro-title {
+    color: #FFDEB9;
+    font-size: 3rem;
+    margin-top: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.intro-title span {
+    color: #FE6244;
+}
+
+.intro-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #FE6244, transparent);
+    margin: 10px auto;
+    max-width: 250px;
+}
+
+@keyframes pulseGlow {
+    from { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
