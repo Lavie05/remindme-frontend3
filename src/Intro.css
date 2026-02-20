@@ -1,5 +1,6 @@
+/* Intro.css */
 .intro-container {
-    background: #1a0429; /* لون غامق جداً مثل شاشة السينما */
+    background: #1a0429; /* لون الخلفية الغامق */
     height: 100vh;
     width: 100%;
     display: flex;
@@ -18,11 +19,16 @@
 }
 
 .intro-logo-img {
-    width: 180px; /* حجم كبير للبداية */
+    width: 180px; 
     height: auto;
     z-index: 2;
     position: relative;
-    filter: drop-shadow(0 0 15px rgba(254, 98, 68, 0.3));
+    
+    /* التعديل السحري هنا لإخفاء الخلفية البيضاء */
+    mix-blend-mode: screen; 
+    
+    /* تقوية التوهج حول اللوجو بعد حذف خلفيته */
+    filter: drop-shadow(0 0 20px rgba(254, 98, 68, 0.6));
 }
 
 .logo-glow {
@@ -30,10 +36,10 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(98, 16, 159, 0.6) 0%, transparent 70%);
-    filter: blur(30px);
+    width: 250px; /* كبرنا الهالة شوي */
+    height: 250px;
+    background: radial-gradient(circle, rgba(159, 16, 159, 0.4) 0%, transparent 70%);
+    filter: blur(40px);
     z-index: 1;
     animation: pulseGlow 2s infinite alternate;
 }
@@ -44,6 +50,8 @@
     margin-top: 20px;
     font-weight: 800;
     text-transform: uppercase;
+    /* إضافة لمعان خفيف للنص */
+    text-shadow: 0 0 10px rgba(255, 222, 185, 0.3);
 }
 
 .intro-title span {
@@ -58,6 +66,12 @@
 }
 
 @keyframes pulseGlow {
-    from { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-    to { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    from { 
+        opacity: 0.4; 
+        transform: translate(-50%, -50%) scale(1); 
+    }
+    to { 
+        opacity: 0.8; 
+        transform: translate(-50%, -50%) scale(1.3); 
+    }
 }
