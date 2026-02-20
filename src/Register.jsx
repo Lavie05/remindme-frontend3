@@ -1,37 +1,34 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './Register.css';
+import toast from 'react-hot-toast'; // ✅ إضافة التنبيهات الأنيقة
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
 import API_BASE_URL from './config'; 
 import logo from './remindme logo.jfif'; 
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; 
+import './Register.css';
 
 const Register = ({ onLoginSuccess, switchToLogin }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
     const [loading, setLoading] = useState(false); 
     const [errorMsg, setErrorMsg] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [strength, setStrength] = useState(0); // حالة قوة كلمة المرور
+    const [strength, setStrength] = useState(0);
 
-    // دالة لتقييم قوة كلمة المرور (من 0 إلى 5)
+    // دالة لتقييم قوة كلمة المرور (0 إلى 5)
     const evaluatePassword = (password) => {
         let score = 0;
         if (!password) return 0;
-        if (password.length > 6) score++; // طول مقبول
-        if (password.length > 9) score++; // طول ممتاز
-        if (/[A-Z]/.test(password)) score++; // يحتوي حرف كبير
-        if (/[0-9]/.test(password)) score++; // يحتوي أرقام
-        if (/[^A-Za-z0-9]/.test(password)) score++; // يحتوي رموز
+        if (password.length > 6) score++; 
+        if (password.length > 9) score++; 
+        if (/[A-Z]/.test(password)) score++; 
+        if (/[0-9]/.test(password)) score++; 
+        if (/[^A-Za-z0-9]/.test(password)) score++; 
         return score;
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-        
-        // مسح الخطأ عند الكتابة
         if (errorMsg) setErrorMsg('');
-
-        // تحديث مقياس القوة عند تغيير الباسورد
         if (name === 'password') {
             setStrength(evaluatePassword(value));
         }
@@ -41,22 +38,31 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
         e.preventDefault();
         setErrorMsg('');
 
-        // تحسين: منع الإرسال إذا كانت الكلمة ضعيفة جداً (اختياري)
         if (formData.password.length < 6) {
-            setErrorMsg("⚠️ كلمة المرور قصيرة جداً");
+            setErrorMsg("⚠️ كلمة المرور قصيرة جداً (6 أحرف على الأقل)");
             return;
         }
 
         setLoading(true); 
 
         try {
+            // ✅ طلب التسجيل للسيرفر
             const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
-            if (response.status === 201 || response.status === 200) {
+            
+            // ✅ التحقق من وجود التوكن وحفظه فوراً للدخول التلقائي
+            if (response.data && response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                toast.success("✨ أهلاً بك في عالم RemindME!");
                 onLoginSuccess(); 
+            } else {
+                // في حال كان السيرفر يتطلب تسجيل دخول يدوي بعد التسجيل
+                toast.success("تم إنشاء الحساب! سجل دخولك الآن 🚀");
+                switchToLogin();
             }
         } catch (error) {
-            const serverError = error.response?.data?.error || "تعذر الاتصال بالسيرفر";
+            const serverError = error.response?.data?.error || "تعذر الاتصال بالسيرفر، حاول مجدداً";
             setErrorMsg(serverError);
+            toast.error(serverError);
         } finally {
             setLoading(false); 
         }
@@ -72,15 +78,27 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
                 <h2>Remind<span>ME</span></h2>
                 <p style={{marginBottom: '10px', fontSize: '0.9rem'}}>مستقبل التذكيرات الذكية</p>
                 
-                {errorMsg && <div className="error-message">{errorMsg}</div>}
+                {errorMsg && <div className="error-message-box">{errorMsg}</div>}
                 
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
-                        <input type="text" name="username" placeholder="اسم المستخدم" onChange={handleChange} required />
+                        <input 
+                            type="text" 
+                            name="username" 
+                            placeholder="اسم المستخدم" 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     
                     <div className="input-group">
-                        <input type="email" name="email" placeholder="البريد الإلكتروني" onChange={handleChange} required />
+                        <input 
+                            type="email" 
+                            name="email" 
+                            placeholder="البريد الإلكتروني" 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     
                     <div className="input-group password-wrapper">
@@ -96,7 +114,6 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
                         </span>
                     </div>
 
-                    {/* مقياس قوة كلمة المرور البصري */}
                     <div className="strength-bar-container">
                         <div className={`strength-bar-fill strength-${strength}`}></div>
                     </div>
@@ -107,7 +124,9 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
                     </div>
 
                     <button type="submit" className="glow-button" disabled={loading}>
-                        {loading ? "جاري المعالجة..." : "انضم الآن"}
+                        {loading ? (
+                            <span className="loader-text">جاري إنشاء حسابك... ✨</span>
+                        ) : "انضم الآن"}
                     </button>
                 </form>
 

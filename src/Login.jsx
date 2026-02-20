@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import toast from 'react-hot-toast'; // ✅ استبدال alert بـ toast
 import './Register.css'; 
 
 const Login = ({ onLoginSuccess, switchToRegister }) => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         try {
-            // ✅ تم التعديل: استبدال localhost برابط Render الجديد الخاص بكِ
-            const response = await axios.post('https://remindme-backend3.onrender.com/api/auth/login', formData);
+            const response = await axios.post('/api/auth/login', formData);
             
-            alert("🔑 تم تسجيل الدخول بنجاح!");
+            // ✅ حفظ التوكن في الذاكرة المحلية
+            localStorage.setItem('token', response.data.token);
+            
+            toast.success("🔑 مرحباً بعودتك!");
             onLoginSuccess(); 
         } catch (error) {
-            alert("❌ خطأ: " + (error.response?.data?.error || "بيانات الدخول غير صحيحة"));
+            toast.error(error.response?.data?.error || "بيانات الدخول غير صحيحة");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -42,10 +49,12 @@ const Login = ({ onLoginSuccess, switchToRegister }) => {
                             required 
                         />
                     </div>
-                    <button type="submit" className="glow-button">دخول</button>
+                    <button type="submit" className="glow-button" disabled={loading}>
+                        {loading ? "جاري التحقق..." : "دخول"}
+                    </button>
                 </form>
                 
-                <button onClick={switchToRegister} className="switch-link" style={{background:'none', border:'none', color:'#58a6ff', marginTop:'15px', cursor:'pointer'}}>
+                <button onClick={switchToRegister} className="switch-link">
                     ليس لديك حساب؟ انضم الآن
                 </button>
             </div>

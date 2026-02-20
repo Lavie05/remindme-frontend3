@@ -1,64 +1,75 @@
 import React, { useState, useEffect } from 'react';
+import { Toaster } from 'react-hot-toast'; // ✅ إضافة نظام التنبيهات العالمي
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import Intro from './Intro'; 
+import axios from 'axios';
+
+// ✅ تعريف الرابط الموحد للسيرفر (Base URL)
+// هذا يسهل عليكِ تغييره مستقبلاً من مكان واحد فقط
+axios.defaults.baseURL = 'https://remindme-backend3.onrender.com';
 
 function App() {
-  // الحالة تبدأ بـ true لتشغيل الأنيميشن فور فتح الموقع
   const [showIntro, setShowIntro] = useState(true);
-  
-  // التحكم في حالة تسجيل الدخول (نتحقق من وجود توكن عند البداية)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  // التحكم في التبديل بين شاشتي Login و Register
   const [showLogin, setShowLogin] = useState(true);
 
-  // --- [إضافة جديدة: التحقق من التوكن عند تشغيل التطبيق] ---
+  // التحقق من التوكن عند تشغيل التطبيق
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
+      // هنا يمكننا مستقبلاً إضافة طلب للسيرفر للتأكد أن التوكن لم تنتهِ صلاحيته
       setIsLoggedIn(true);
-      // اختياري: إذا كان مسجلاً دخول، قد ترغبين في تخطي الـ Intro مباشرة
-      // setShowIntro(false); 
     }
   }, []);
 
-  // دالة تسجيل الخروج المسؤولة عن مسح البيانات
+  // دالة تسجيل الخروج
   const handleLogout = () => {
-    localStorage.removeItem('token'); // حذف التوكن من الذاكرة
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
   };
 
   /**
-   * 1. مرحلة الـ Splash Screen (الافتتاحية)
+   * 1. مرحلة الـ Intro
    */
   if (showIntro) {
     return <Intro onFinish={() => setShowIntro(false)} />;
   }
 
   /**
-   * 2. مرحلة ما بعد تسجيل الدخول (اللوحة الرئيسية)
-   */
-  if (isLoggedIn) {
-    return <Dashboard onLogout={handleLogout} />;
-  }
-
-  /**
-   * 3. مرحلة المصادقة (Authentication)
+   * 2. العرض الرئيسي
    */
   return (
     <div className="App">
-      {showLogin ? (
-        <Login 
-          onLoginSuccess={() => setIsLoggedIn(true)} 
-          switchToRegister={() => setShowLogin(false)} 
-        />
+      {/* ✅ وضعنا Toaster هنا ليعمل في Login و Register و Dashboard */}
+      <Toaster 
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#1a0429',
+            color: '#FFDEB9',
+            border: '1px solid rgba(254, 98, 68, 0.3)',
+            borderRadius: '12px'
+          },
+        }} 
+      />
+
+      {isLoggedIn ? (
+        <Dashboard onLogout={handleLogout} />
       ) : (
-        <Register 
-          onLoginSuccess={() => setIsLoggedIn(true)} 
-          switchToLogin={() => setShowLogin(true)} 
-        />
+        showLogin ? (
+          <Login 
+            onLoginSuccess={() => setIsLoggedIn(true)} 
+            switchToRegister={() => setShowLogin(false)} 
+          />
+        ) : (
+          <Register 
+            onLoginSuccess={() => setIsLoggedIn(true)} 
+            switchToLogin={() => setShowLogin(true)} 
+          />
+        )
       )}
     </div>
   );
