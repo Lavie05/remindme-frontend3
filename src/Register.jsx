@@ -37,7 +37,6 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
         e.preventDefault();
         setErrorMsg('');
 
-        // ✅ تحسين: تنظيف البيانات من المسافات الزائدة
         const dataToSend = {
             username: formData.username.trim(),
             email: formData.email.trim(),
@@ -52,21 +51,23 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
         setLoading(true); 
 
         try {
-            // ✅ المسار المحدث ليتوافق مع السيرفر:
-            // تأكدي أن API_BASE_URL في ملف config هو https://remindme-backend3.onrender.com/api
+            // ✅ التعديل هنا ليتوافق مع السيرفر الجديد
+            // بما أننا حذفنا /api من السيرفر، سنطلبه من الرابط الأساسي مباشرة
+            // تأكدي أن API_BASE_URL في config.js هو: https://remindme-backend3.onrender.com
             const response = await axios.post(`${API_BASE_URL}/auth/register`, dataToSend);
             
-            if (response.data && response.data.token) {
-                localStorage.setItem('token', response.data.token);
-                toast.success("✨ أهلاً بك في عالم RemindME!");
-                onLoginSuccess(); 
-            } else {
-                toast.success("تم إنشاء الحساب! سجل دخولك الآن 🚀");
-                switchToLogin();
+            if (response.data) {
+                toast.success("✨ تم إنشاء الحساب بنجاح!");
+                // إذا كان السيرفر يرسل توكن عند التسجيل، نحفظه
+                if (response.data.token) {
+                    localStorage.setItem('token', response.data.token);
+                    onLoginSuccess();
+                } else {
+                    switchToLogin(); // ننتقل لصفحة الدخول إذا لم يتوفر توكن
+                }
             }
         } catch (error) {
-            // ✅ تحسين التقاط رسالة الخطأ من السيرفر
-            const serverError = error.response?.data?.error || error.response?.data?.message || "تعذر الاتصال بالسيرفر، حاول مجدداً";
+            const serverError = error.response?.data?.error || "تعذر الاتصال بالسيرفر، حاول مجدداً";
             setErrorMsg(serverError);
             toast.error(serverError);
         } finally {
