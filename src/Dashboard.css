@@ -5,7 +5,7 @@
     display: flex;
     min-height: 100vh;
     background: radial-gradient(circle at top right, #1a0429 0%, #05010a 100%);
-    direction: rtl; /* اتجاه عربي */
+    direction: rtl;
 }
 
 /* 2. القائمة الجانبية (Sidebar) */
@@ -20,6 +20,7 @@
     position: sticky;
     top: 0;
     height: 100vh;
+    z-index: 100;
 }
 
 .sidebar-logo h3 {
@@ -48,6 +49,9 @@
     cursor: pointer;
     transition: 0.3s;
     font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .nav-item.active, .nav-item:hover {
@@ -55,7 +59,6 @@
     color: #FFDEB9;
 }
 
-/* 3. زر تسجيل الخروج داخل Sidebar */
 .logout-btn-sidebar {
     background: rgba(255, 77, 77, 0.05);
     border: 1px solid rgba(255, 77, 77, 0.2);
@@ -72,7 +75,7 @@
     color: white;
 }
 
-/* 4. المحتوى الرئيسي */
+/* 3. المحتوى الرئيسي */
 .main-content {
     flex: 1;
     padding: 40px;
@@ -80,7 +83,7 @@
     margin: 0 auto;
 }
 
-/* 5. الهيدر (العناوين وأزرار الـ AI) */
+/* 4. الهيدر المعدل (الترحيب الشخصي) */
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -90,16 +93,37 @@
     gap: 20px;
 }
 
-.header-text h2 { color: #FFDEB9; font-size: 2.2rem; }
-.header-text p { color: #888; }
-.header-text span { color: #FE6244; font-weight: bold; }
+.header-text h2 { 
+    color: #FFDEB9; 
+    font-size: 2.4rem; 
+    margin-bottom: 8px;
+}
 
+.header-text h2 span { 
+    color: #FE6244; 
+    font-weight: 800;
+    text-shadow: 0 0 20px rgba(254, 98, 68, 0.5);
+}
+
+.header-text p { 
+    color: #aaa; 
+    font-size: 1.1rem;
+}
+
+.header-text p span { 
+    color: #FE6244; 
+    background: rgba(254, 98, 68, 0.1);
+    padding: 2px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* 5. أزرار الـ AI */
 .ai-controls {
     display: flex;
     gap: 12px;
 }
 
-/* 6. أزرار الـ AI (التسجيل والرفع) */
 .ai-btn {
     padding: 12px 24px;
     border-radius: 50px;
@@ -107,7 +131,6 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
-    font-size: 0.9rem;
 }
 
 .ai-btn.record {
@@ -127,14 +150,13 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* تأثير النبض */
 @keyframes pulseGlow {
     0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
     70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
 }
 
-/* 7. فورم إضافة مهمة */
+/* 6. فورم الإدخال */
 .task-input-bar {
     display: flex;
     gap: 12px;
@@ -167,15 +189,14 @@
 .task-input-bar button {
     background: #FE6244;
     color: white;
-    border: none;
     padding: 0 30px;
     border-radius: 15px;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
+    border: none;
 }
 
-/* 8. شبكة المهام */
+/* 7. كروت المهام */
 .tasks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -196,13 +217,19 @@
 
 .task-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
 
-/* الألوان حسب الأولوية */
 .task-card.prio-high { border-right: 5px solid #ff4d4d; }
 .task-card.prio-medium { border-right: 5px solid #FE6244; }
 .task-card.prio-low { border-right: 5px solid #4dff88; }
 
-.task-body p { color: #FFDEB9; font-size: 1rem; line-height: 1.6; margin-bottom: 10px; white-space: pre-line; }
-.task-meta { color: #666; font-size: 0.8rem; }
+.task-body p { 
+    color: #FFDEB9; 
+    font-size: 1.05rem; 
+    line-height: 1.7; 
+    margin-bottom: 12px; 
+    white-space: pre-line; 
+}
+
+.task-meta { color: #888; font-size: 0.85rem; }
 
 .delete-btn {
     background: rgba(255, 77, 77, 0.1);
@@ -212,7 +239,7 @@
     height: 28px;
     border-radius: 50%;
     cursor: pointer;
-    transition: 0.3s;
+    font-size: 1.2rem;
 }
 
 .delete-btn:hover { background: #ff4d4d; color: white; }
