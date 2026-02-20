@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast'; // ✅ استبدال alert بـ toast
+import toast from 'react-hot-toast'; 
 import './Register.css'; 
 
 const Login = ({ onLoginSuccess, switchToRegister }) => {
@@ -11,15 +11,20 @@ const Login = ({ onLoginSuccess, switchToRegister }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await axios.post('/api/auth/login', formData);
+            // ✅ تم تصحيح الرابط: حذف /api واستخدام رابط Render المباشر
+            const response = await axios.post('https://remindme-backend3.onrender.com/auth/login', formData);
             
             // ✅ حفظ التوكن في الذاكرة المحلية
-            localStorage.setItem('token', response.data.token);
-            
-            toast.success("🔑 مرحباً بعودتك!");
-            onLoginSuccess(); 
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                toast.success("🔑 مرحباً بعودتك!");
+                onLoginSuccess(); // ✅ نقلك للداشبورد
+            }
         } catch (error) {
-            toast.error(error.response?.data?.error || "بيانات الدخول غير صحيحة");
+            // ✅ عرض رسالة الخطأ القادمة من السيرفر بوضوح
+            const errorMsg = error.response?.data?.error || "بيانات الدخول غير صحيحة";
+            toast.error(errorMsg);
+            console.error("Login Error details:", error.response);
         } finally {
             setLoading(false);
         }
@@ -37,6 +42,7 @@ const Login = ({ onLoginSuccess, switchToRegister }) => {
                         <input 
                             type="email" 
                             placeholder="البريد الإلكتروني" 
+                            value={formData.email}
                             onChange={(e) => setFormData({...formData, email: e.target.value})} 
                             required 
                         />
@@ -45,6 +51,7 @@ const Login = ({ onLoginSuccess, switchToRegister }) => {
                         <input 
                             type="password" 
                             placeholder="كلمة المرور" 
+                            value={formData.password}
                             onChange={(e) => setFormData({...formData, password: e.target.value})} 
                             required 
                         />

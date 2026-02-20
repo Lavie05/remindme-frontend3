@@ -1,19 +1,49 @@
-/* Dashboard.css */
+/* Dashboard.css - النسخة الكاملة والمطورة */
 
-/* 1. التوزيع الأساسي (Layout) */
+/* 1. تعريف متغيرات الثيم (Theming Variables) */
+:root {
+    /* الوضع الافتراضي: Deep Purple (ليلي) */
+    --bg-gradient: radial-gradient(circle at top right, #1a0429 0%, #05010a 100%);
+    --sidebar-bg: rgba(10, 5, 20, 0.6);
+    --accent-color: #FE6244;
+    --accent-hover: #ff7e67;
+    --text-main: #FFDEB9;
+    --text-dim: #888;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --glow-shadow: rgba(254, 98, 68, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='midnight'] {
+    /* وضع Midnight Blue (نهاري/هادئ) */
+    --bg-gradient: radial-gradient(circle at top right, #051622 0%, #02090e 100%);
+    --sidebar-bg: rgba(5, 22, 34, 0.8);
+    --accent-color: #1ba098; /* تركواز */
+    --accent-hover: #23c5bb;
+    --text-main: #d1f2f0;
+    --text-dim: #6a8d8b;
+    --card-bg: rgba(27, 160, 152, 0.05);
+    --input-bg: rgba(27, 160, 152, 0.1);
+    --glow-shadow: rgba(27, 160, 152, 0.5);
+    --glass-border: rgba(27, 160, 152, 0.2);
+}
+
+/* 2. التوزيع الأساسي (Layout) */
 .dashboard-layout {
     display: flex;
     min-height: 100vh;
-    background: radial-gradient(circle at top right, #1a0429 0%, #05010a 100%);
+    background: var(--bg-gradient);
     direction: rtl;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* انتقال ناعم للثيم */
 }
 
-/* 2. القائمة الجانبية (Sidebar) */
+/* 3. القائمة الجانبية (Sidebar) */
 .sidebar {
     width: 260px;
-    background: rgba(10, 5, 20, 0.6);
+    background: var(--sidebar-bg);
     backdrop-filter: blur(20px);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 1px solid var(--glass-border);
     padding: 30px 20px;
     display: flex;
     flex-direction: column;
@@ -24,13 +54,13 @@
 }
 
 .sidebar-logo h3 {
-    color: #FFDEB9;
+    color: var(--text-main);
     font-size: 1.8rem;
     text-align: center;
     margin-bottom: 40px;
 }
 
-.sidebar-logo span { color: #FE6244; }
+.sidebar-logo span { color: var(--accent-color); }
 
 .sidebar-nav {
     display: flex;
@@ -42,7 +72,7 @@
 .nav-item {
     background: transparent;
     border: none;
-    color: #888;
+    color: var(--text-dim);
     padding: 12px 18px;
     text-align: right;
     border-radius: 12px;
@@ -56,7 +86,7 @@
 
 .nav-item.active, .nav-item:hover {
     background: rgba(254, 98, 68, 0.1);
-    color: #FFDEB9;
+    color: var(--text-main);
 }
 
 .logout-btn-sidebar {
@@ -75,7 +105,7 @@
     color: white;
 }
 
-/* 3. المحتوى الرئيسي */
+/* 4. المحتوى الرئيسي */
 .main-content {
     flex: 1;
     padding: 40px;
@@ -83,7 +113,7 @@
     margin: 0 auto;
 }
 
-/* 4. الهيدر المعدل (الترحيب الشخصي) */
+/* 5. الهيدر (الترحيب) */
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -94,35 +124,21 @@
 }
 
 .header-text h2 { 
-    color: #FFDEB9; 
+    color: var(--text-main); 
     font-size: 2.4rem; 
     margin-bottom: 8px;
 }
 
 .header-text h2 span { 
-    color: #FE6244; 
+    color: var(--accent-color); 
     font-weight: 800;
-    text-shadow: 0 0 20px rgba(254, 98, 68, 0.5);
+    text-shadow: 0 0 20px var(--glow-shadow);
 }
 
-.header-text p { 
-    color: #aaa; 
-    font-size: 1.1rem;
-}
+.header-text p { color: var(--text-dim); font-size: 1.1rem; }
 
-.header-text p span { 
-    color: #FE6244; 
-    background: rgba(254, 98, 68, 0.1);
-    padding: 2px 10px;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-/* 5. أزرار الـ AI */
-.ai-controls {
-    display: flex;
-    gap: 12px;
-}
+/* 6. أزرار الـ AI */
+.ai-controls { display: flex; gap: 12px; }
 
 .ai-btn {
     padding: 12px 24px;
@@ -134,9 +150,9 @@
 }
 
 .ai-btn.record {
-    background: linear-gradient(135deg, #FE6244 0%, #ff2e63 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, #ff2e63 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(254, 98, 68, 0.3);
+    box-shadow: 0 4px 15px var(--glow-shadow);
 }
 
 .ai-btn.record.active {
@@ -144,59 +160,50 @@
     animation: pulseGlow 1.5s infinite;
 }
 
-.ai-btn.upload {
-    background: rgba(255, 255, 255, 0.08);
-    color: #FFDEB9;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 @keyframes pulseGlow {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    0% { transform: scale(1); box-shadow: 0 0 0 0 var(--glow-shadow); }
     70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
 }
 
-/* 6. فورم الإدخال */
+/* 7. فورم الإدخال */
 .task-input-bar {
     display: flex;
     gap: 12px;
     margin-bottom: 40px;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--input-bg);
     padding: 10px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
 }
 
 .task-input-bar input {
     flex: 2;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
     padding: 15px 20px;
     border-radius: 15px;
     color: white;
     outline: none;
 }
 
-.task-input-bar select {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #FFDEB9;
-    border-radius: 15px;
-    padding: 0 15px;
-    cursor: pointer;
-}
-
 .task-input-bar button {
-    background: #FE6244;
+    background: var(--accent-color);
     color: white;
     padding: 0 30px;
     border-radius: 15px;
     font-weight: bold;
     cursor: pointer;
     border: none;
+    transition: 0.3s;
 }
 
-/* 7. كروت المهام */
+.task-input-bar button:hover {
+    background: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+/* 8. كروت المهام */
 .tasks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -204,42 +211,20 @@
 }
 
 .task-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--card-bg);
     backdrop-filter: blur(12px);
     padding: 22px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
     transition: 0.3s ease;
 }
 
 .task-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
 
-.task-card.prio-high { border-right: 5px solid #ff4d4d; }
-.task-card.prio-medium { border-right: 5px solid #FE6244; }
-.task-card.prio-low { border-right: 5px solid #4dff88; }
-
 .task-body p { 
-    color: #FFDEB9; 
+    color: var(--text-main); 
     font-size: 1.05rem; 
     line-height: 1.7; 
-    margin-bottom: 12px; 
-    white-space: pre-line; 
 }
-
-.task-meta { color: #888; font-size: 0.85rem; }
-
-.delete-btn {
-    background: rgba(255, 77, 77, 0.1);
-    border: none;
-    color: #ff4d4d;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.2rem;
-}
-
-.delete-btn:hover { background: #ff4d4d; color: white; }

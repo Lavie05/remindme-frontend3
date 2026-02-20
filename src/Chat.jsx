@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import express from 'express';
+const router = express.Router();
 
-const Chat = () => {
-    // ... كل كود الـ Chat الذي كتبناه سابقاً
-    return (
-        <div> {/* كود الواجهة */} </div>
-    );
-};
+// هذا هو المسار الذي سيتحدث معه الفرونت إند
+router.post('/smart-schedule', async (req, res) => {
+    try {
+        const { text } = req.body;
+        // هنا سيتم لاحقاً إضافة منطق الذكاء الاصطناعي
+        res.json({ 
+            task: text, 
+            schedule: [new Date()] // موعد تجريبي
+        });
+    } catch (error) {
+        res.status(500).json({ message: "خطأ في السيرفر" });
+    }
+});
 
-// السطر الأهم في الملف (تأكدي من كتابته يدوياً من جديد)
-export default Chat;
+export default router;

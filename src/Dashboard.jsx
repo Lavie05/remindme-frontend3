@@ -19,15 +19,17 @@ const Dashboard = ({ onLogout }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [userName, setUserName] = useState("صديقي");
     const [aiQuote, setAiQuote] = useState("استعد لإنجاز عظيم اليوم! ✨");
+    
+    // --- حالات الإحصائيات الجديدة ---
+    const [showStats, setShowStats] = useState(false);
+    const [statsData, setStatsData] = useState({ total: 0, high: 0, medium: 0, low: 0 });
 
-    // 1. تعريف مصفوفة الثيمات (Color Hunt Inspiration)
     const themePalettes = [
         { id: 'deep-purple', name: 'الافتراضي', accent: '#FE6244', colors: { '--bg-gradient': 'radial-gradient(circle at top right, #1a0429 0%, #05010a 100%)', '--sidebar-bg': 'rgba(10, 5, 20, 0.6)', '--accent-color': '#FE6244', '--text-main': '#FFDEB9', '--glow-shadow': 'rgba(254, 98, 68, 0.5)' } },
         { id: 'midnight', name: 'المحيط', accent: '#1ba098', colors: { '--bg-gradient': 'radial-gradient(circle at top right, #051622 0%, #02090e 100%)', '--sidebar-bg': 'rgba(5, 22, 34, 0.8)', '--accent-color': '#1ba098', '--text-main': '#d1f2f0', '--glow-shadow': 'rgba(27, 160, 152, 0.5)' } },
         { id: 'cyber', name: 'سيبربونك', accent: '#C147E9', colors: { '--bg-gradient': 'radial-gradient(circle at top right, #2D033B 0%, #000000 100%)', '--sidebar-bg': 'rgba(45, 3, 59, 0.6)', '--accent-color': '#C147E9', '--text-main': '#E5B8F4', '--glow-shadow': 'rgba(193, 71, 233, 0.5)' } }
     ];
 
-    // دالة تغيير الثيم
     const changeTheme = (theme) => {
         Object.keys(theme.colors).forEach(key => {
             document.documentElement.style.setProperty(key, theme.colors[key]);
@@ -35,7 +37,6 @@ const Dashboard = ({ onLogout }) => {
         localStorage.setItem('selectedTheme', JSON.stringify(theme));
     };
 
-    // دالة توليد الجملة التحفيزية من Gemini
     const generateAIQuote = async (name) => {
         try {
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -46,7 +47,6 @@ const Dashboard = ({ onLogout }) => {
     };
 
     useEffect(() => {
-        // استعادة الثيم المحفوظ
         const savedTheme = localStorage.getItem('selectedTheme');
         if (savedTheme) changeTheme(JSON.parse(savedTheme));
 
@@ -57,7 +57,7 @@ const Dashboard = ({ onLogout }) => {
                 const name = decoded.name || decoded.username || "مبدعنا";
                 setUserName(name);
                 fetchTasks(token);
-                generateAIQuote(name); // توليد الجملة فور معرفة الاسم
+                generateAIQuote(name);
             } catch (err) { console.error("Invalid token"); }
         }
     }, []);
@@ -71,7 +71,18 @@ const Dashboard = ({ onLogout }) => {
         } catch (err) { console.error("Error fetching tasks"); }
     };
 
-    // (بقية الدوال: fileToGenerativePart, handleFileUpload, recognition useEffect, toggleRecording, addTask, deleteTask, getTimeGreeting تبقى كما هي في كودك الأصلي)
+    // --- دالة تشغيل الإحصائيات ---
+    const handleStatsClick = () => {
+        const stats = {
+            total: tasks.length,
+            high: tasks.filter(t => t.priority === 'high').length,
+            medium: tasks.filter(t => t.priority === 'medium').length,
+            low: tasks.filter(t => t.priority === 'low').length,
+        };
+        setStatsData(stats);
+        setShowStats(true);
+    };
+
     const fileToGenerativePart = async (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -152,9 +163,9 @@ const Dashboard = ({ onLogout }) => {
                 </div>
                 <nav className="sidebar-nav">
                     <button className="nav-item active">🏠 الرئيسية</button>
-                    <button className="nav-item">📊 الإحصائيات</button>
+                    {/* زر الإحصائيات الآن يعمل! */}
+                    <button className="nav-item" onClick={handleStatsClick}>📊 الإحصائيات</button>
                     
-                    {/* اختيار الثيمات الجديد */}
                     <div style={{ marginTop: '20px', padding: '10px' }}>
                         <p style={{ color: '#888', fontSize: '0.8rem', marginBottom: '10px' }}>لون الواجهة:</p>
                         <div style={{ display: 'flex', gap: '8px' }}>
@@ -173,13 +184,10 @@ const Dashboard = ({ onLogout }) => {
                 <header className="main-header">
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="header-text">
                         <h2>{getTimeGreeting()}، <span>{userName}</span></h2>
-                        
-                        {/* عرض الجملة التحفيزية من AI */}
                         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
                             style={{ fontStyle: 'italic', color: 'var(--accent-color)', marginBottom: '15px' }}>
                             {aiQuote}
                         </motion.p>
-                        
                         <p>لديك <span>{tasks.length}</span> عناصر اليوم</p>
                     </motion.div>
 
@@ -218,6 +226,44 @@ const Dashboard = ({ onLogout }) => {
                     </AnimatePresence>
                 </div>
             </main>
+
+            {/* --- نافذة الإحصائيات (Modal) --- */}
+            <AnimatePresence>
+                {showStats && (
+                    <motion.div 
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        className="stats-overlay" onClick={() => setShowStats(false)}
+                    >
+                        <motion.div 
+                            initial={{ y: 50, scale: 0.9 }} animate={{ y: 0, scale: 1 }} exit={{ y: 50, scale: 0.9 }}
+                            className="stats-modal" onClick={e => e.stopPropagation()}
+                        >
+                            <h3 style={{ color: 'var(--text-main)', marginBottom: '20px' }}>📊 ملخص مهامك</h3>
+                            <div className="stats-grid-container">
+                                <div className="stat-item">
+                                    <span style={{ fontSize: '2rem' }}>{statsData.total}</span>
+                                    <p style={{ color: '#888' }}>إجمالي المهام</p>
+                                </div>
+                                <div className="stat-item">
+                                    <span style={{ color: '#ff4d4d', fontSize: '2rem' }}>{statsData.high}</span>
+                                    <p style={{ color: '#888' }}>عاجلة 🔥</p>
+                                </div>
+                                <div className="stat-item">
+                                    <span style={{ color: '#ffcc00', fontSize: '2rem' }}>{statsData.medium}</span>
+                                    <p style={{ color: '#888' }}>متوسطة ⚡</p>
+                                </div>
+                                <div className="stat-item">
+                                    <span style={{ color: '#00ccff', fontSize: '2rem' }}>{statsData.low}</span>
+                                    <p style={{ color: '#888' }}>عادية ✨</p>
+                                </div>
+                            </div>
+                            <button className="close-stats-btn" onClick={() => setShowStats(false)}>
+                                فهمت! 🚀
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
