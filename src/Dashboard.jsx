@@ -17,27 +17,36 @@ const Dashboard = ({ onLogout }) => {
     const [priority, setPriority] = useState("medium");
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [isLoading, setIsLoading] = useState(true); // حالة تحميل البيانات
     const [userName, setUserName] = useState("صديقي");
+    
+    // ✅ حالة الثيم الجديد (تلقائي بناءً على الوقت)
+    const [theme, setTheme] = useState('deep-purple');
 
-    // 1. استخراج الاسم وجلب المهام من السيرفر عند تحميل الصفحة
+    // 1. منطق الثيم التلقائي واستخراج البيانات
     useEffect(() => {
+        // إدارة الثيم
+        const hour = new Date().getHours();
+        const initialTheme = (hour >= 6 && hour < 18) ? 'midnight' : 'deep-purple';
+        setTheme(initialTheme);
+        document.documentElement.setAttribute('data-theme', initialTheme);
+
+        // إدارة التوكن والمهام
         const token = localStorage.getItem('token');
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                // استخراج الاسم من الحقول المحتملة في التوكن
-                const name = decoded.name || decoded.username || decoded.email?.split('@')[0] || "مبدعنا";
-                setUserName(name);
+                setUserName(decoded.name || decoded.username || "مبدعنا");
                 fetchTasks(token);
-            } catch (err) { 
-                console.error("Invalid token");
-                setIsLoading(false);
-            }
-        } else {
-            setIsLoading(false);
+            } catch (err) { console.error("Invalid token"); }
         }
     }, []);
+
+    // ✅ دالة تبديل الثيم يدوياً
+    const toggleTheme = () => {
+        const newTheme = theme === 'deep-purple' ? 'midnight' : 'deep-purple';
+        setTheme(newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
 
     const fetchTasks = async (token) => {
         try {
@@ -45,11 +54,7 @@ const Dashboard = ({ onLogout }) => {
                 headers: { Authorization: token }
             });
             setTasks(res.data);
-        } catch (err) { 
-            console.error("Error fetching tasks"); 
-        } finally {
-            setIsLoading(false); // إنهاء حالة التحميل
-        }
+        } catch (err) { console.error("Error fetching tasks"); }
     };
 
     const fileToGenerativePart = async (file) => {
@@ -70,26 +75,21 @@ const Dashboard = ({ onLogout }) => {
         const file = e.target.files[0];
         if (!file) return;
         setIsProcessing(true);
-        const token = localStorage.getItem('token');
-        
         try {
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const audioData = await fileToGenerativePart(file);
-            const prompt = "أنت مساعد ذكي للمذاكرة. لخص هذا الملف الصوتي في نقاط واضحة ومختصرة باللغة العربية كمهام دراسية.";
+            const prompt = "أنت مساعد ذكي للمذاكرة. لخص هذا الملف الصوتي في نقاط واضحة ومختصرة باللغة العربية.";
             const result = await model.generateContent([prompt, audioData]);
             const response = await result.response;
-            const summaryText = response.text();
-
-            // حفظ الملخص كمهام في قاعدة البيانات
-            const res = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', {
-                text: `📁 ملخص: ${file.name}\n${summaryText}`,
+            
+            setTasks(prev => [{
+                _id: Date.now().toString(),
+                text: `📁 ملخص: ${file.name}\n${response.text()}`,
                 priority: "high",
-                time: "AI Audio Analysis ✨"
-            }, { headers: { Authorization: token } });
-
-            setTasks(prev => [res.data, ...prev]);
+                createdAt: new Date().toISOString()
+            }, ...prev]);
         } catch (error) {
-            alert("حدث خطأ في تحليل الملف أو الحفظ.");
+            alert("حدث خطأ في تحليل الملف.");
         } finally { setIsProcessing(false); }
     };
 
@@ -100,20 +100,16 @@ const Dashboard = ({ onLogout }) => {
             const transcript = event.results[0][0].transcript;
             setIsRecording(false);
             setIsProcessing(true);
-            const token = localStorage.getItem('token');
-            
             try {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const result = await model.generateContent(`أعد صياغة هذا النص ليكون مهمة واضحة ومختصرة: "${transcript}"`);
                 const response = await result.response;
-                
-                const res = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', {
+                setTasks(prev => [{
+                    _id: Date.now().toString(),
                     text: response.text(),
                     priority: "high",
-                    time: "AI Voice ✨"
-                }, { headers: { Authorization: token } });
-
-                setTasks(prev => [res.data, ...prev]);
+                    createdAt: new Date().toISOString()
+                }, ...prev]);
             } catch (error) { console.error(error); } 
             finally { setIsProcessing(false); }
         };
@@ -169,7 +165,10 @@ const Dashboard = ({ onLogout }) => {
                 <nav className="sidebar-nav">
                     <button className="nav-item active">🏠 الرئيسية</button>
                     <button className="nav-item">📊 الإحصائيات</button>
-                    <button className="nav-item">⚙️ الإعدادات</button>
+                    {/* ✅ زر تبديل الثيم اليدوي */}
+                    <button className="nav-item" onClick={toggleTheme}>
+                        {theme === 'deep-purple' ? '🌙 الوضع الليلي' : '☀️ الوضع النهاري'}
+                    </button>
                 </nav>
                 <button className="logout-btn-sidebar" onClick={onLogout}>
                     🚪 تسجيل الخروج
@@ -184,7 +183,7 @@ const Dashboard = ({ onLogout }) => {
                         className="header-text"
                     >
                         <h2>{getTimeGreeting()}، <span>{userName}</span></h2>
-                        <p>ماذا سننجز اليوم؟ لديك <span>{isLoading ? "..." : tasks.length}</span> عناصر</p>
+                        <p>ماذا سننجز اليوم؟ لديك <span>{tasks.length}</span> عناصر</p>
                     </motion.div>
 
                     <div className="ai-controls">
@@ -218,32 +217,27 @@ const Dashboard = ({ onLogout }) => {
                 </form>
 
                 <div className="tasks-grid">
-                    {isLoading ? (
-                        <div className="loading-state">جاري جلب مهامك الذكية... ✨</div>
-                    ) : (
-                        <AnimatePresence>
-                            {tasks.map(task => (
-                                <motion.div 
-                                    key={task._id || task.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ duration: 0.2 }}
-                                    className={`task-card prio-${task.priority}`}
-                                >
-                                    <div className="task-body">
-                                        <p>{task.text}</p>
-                                        <span className="task-meta">⏰ {task.time || new Date(task.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                    </div>
-                                    <button className="delete-btn" onClick={() => deleteTask(task._id || task.id)}>×</button>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    )}
-                    {!isLoading && tasks.length === 0 && (
-                        <div className="empty-state">لا يوجد مهام حالياً. ابدأ بإضافة واحدة! 🚀</div>
-                    )}
+                    <AnimatePresence>
+                        {tasks.map(task => (
+                            <motion.div 
+                                key={task._id || task.id}
+                                layout
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                transition={{ duration: 0.2 }}
+                                className={`task-card prio-${task.priority}`}
+                            >
+                                <div className="task-body">
+                                    <p>{task.text}</p>
+                                    <span className="task-meta">
+                                        ⏰ {task.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "AI Analysis"}
+                                    </span>
+                                </div>
+                                <button className="delete-btn" onClick={() => deleteTask(task._id || task.id)}>×</button>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 </div>
             </main>
         </div>
