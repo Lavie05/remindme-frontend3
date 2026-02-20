@@ -18,35 +18,49 @@ const Dashboard = ({ onLogout }) => {
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [userName, setUserName] = useState("صديقي");
-    
-    // ✅ حالة الثيم الجديد (تلقائي بناءً على الوقت)
-    const [theme, setTheme] = useState('deep-purple');
+    const [aiQuote, setAiQuote] = useState("استعد لإنجاز عظيم اليوم! ✨");
 
-    // 1. منطق الثيم التلقائي واستخراج البيانات
+    // 1. تعريف مصفوفة الثيمات (Color Hunt Inspiration)
+    const themePalettes = [
+        { id: 'deep-purple', name: 'الافتراضي', accent: '#FE6244', colors: { '--bg-gradient': 'radial-gradient(circle at top right, #1a0429 0%, #05010a 100%)', '--sidebar-bg': 'rgba(10, 5, 20, 0.6)', '--accent-color': '#FE6244', '--text-main': '#FFDEB9', '--glow-shadow': 'rgba(254, 98, 68, 0.5)' } },
+        { id: 'midnight', name: 'المحيط', accent: '#1ba098', colors: { '--bg-gradient': 'radial-gradient(circle at top right, #051622 0%, #02090e 100%)', '--sidebar-bg': 'rgba(5, 22, 34, 0.8)', '--accent-color': '#1ba098', '--text-main': '#d1f2f0', '--glow-shadow': 'rgba(27, 160, 152, 0.5)' } },
+        { id: 'cyber', name: 'سيبربونك', accent: '#C147E9', colors: { '--bg-gradient': 'radial-gradient(circle at top right, #2D033B 0%, #000000 100%)', '--sidebar-bg': 'rgba(45, 3, 59, 0.6)', '--accent-color': '#C147E9', '--text-main': '#E5B8F4', '--glow-shadow': 'rgba(193, 71, 233, 0.5)' } }
+    ];
+
+    // دالة تغيير الثيم
+    const changeTheme = (theme) => {
+        Object.keys(theme.colors).forEach(key => {
+            document.documentElement.style.setProperty(key, theme.colors[key]);
+        });
+        localStorage.setItem('selectedTheme', JSON.stringify(theme));
+    };
+
+    // دالة توليد الجملة التحفيزية من Gemini
+    const generateAIQuote = async (name) => {
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const prompt = `اكتب جملة تحفيزية قصيرة جداً ومشجعة باللغة العربية للمستخدم "${name}". استخدم إيموجي واحد فقط.`;
+            const result = await model.generateContent(prompt);
+            setAiQuote(result.response.text());
+        } catch (e) { console.log("AI Quote Error"); }
+    };
+
     useEffect(() => {
-        // إدارة الثيم
-        const hour = new Date().getHours();
-        const initialTheme = (hour >= 6 && hour < 18) ? 'midnight' : 'deep-purple';
-        setTheme(initialTheme);
-        document.documentElement.setAttribute('data-theme', initialTheme);
+        // استعادة الثيم المحفوظ
+        const savedTheme = localStorage.getItem('selectedTheme');
+        if (savedTheme) changeTheme(JSON.parse(savedTheme));
 
-        // إدارة التوكن والمهام
         const token = localStorage.getItem('token');
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                setUserName(decoded.name || decoded.username || "مبدعنا");
+                const name = decoded.name || decoded.username || "مبدعنا";
+                setUserName(name);
                 fetchTasks(token);
+                generateAIQuote(name); // توليد الجملة فور معرفة الاسم
             } catch (err) { console.error("Invalid token"); }
         }
     }, []);
-
-    // ✅ دالة تبديل الثيم يدوياً
-    const toggleTheme = () => {
-        const newTheme = theme === 'deep-purple' ? 'midnight' : 'deep-purple';
-        setTheme(newTheme);
-        document.documentElement.setAttribute('data-theme', newTheme);
-    };
 
     const fetchTasks = async (token) => {
         try {
@@ -57,14 +71,12 @@ const Dashboard = ({ onLogout }) => {
         } catch (err) { console.error("Error fetching tasks"); }
     };
 
+    // (بقية الدوال: fileToGenerativePart, handleFileUpload, recognition useEffect, toggleRecording, addTask, deleteTask, getTimeGreeting تبقى كما هي في كودك الأصلي)
     const fileToGenerativePart = async (file) => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve({
-                inlineData: {
-                    data: reader.result.split(',')[1],
-                    mimeType: file.type
-                },
+                inlineData: { data: reader.result.split(',')[1], mimeType: file.type },
             });
             reader.onerror = reject;
             reader.readAsDataURL(file);
@@ -81,16 +93,8 @@ const Dashboard = ({ onLogout }) => {
             const prompt = "أنت مساعد ذكي للمذاكرة. لخص هذا الملف الصوتي في نقاط واضحة ومختصرة باللغة العربية.";
             const result = await model.generateContent([prompt, audioData]);
             const response = await result.response;
-            
-            setTasks(prev => [{
-                _id: Date.now().toString(),
-                text: `📁 ملخص: ${file.name}\n${response.text()}`,
-                priority: "high",
-                createdAt: new Date().toISOString()
-            }, ...prev]);
-        } catch (error) {
-            alert("حدث خطأ في تحليل الملف.");
-        } finally { setIsProcessing(false); }
+            setTasks(prev => [{ _id: Date.now().toString(), text: `📁 ملخص: ${file.name}\n${response.text()}`, priority: "high", createdAt: new Date().toISOString() }, ...prev]);
+        } catch (error) { alert("حدث خطأ في تحليل الملف."); } finally { setIsProcessing(false); }
     };
 
     useEffect(() => {
@@ -103,15 +107,8 @@ const Dashboard = ({ onLogout }) => {
             try {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const result = await model.generateContent(`أعد صياغة هذا النص ليكون مهمة واضحة ومختصرة: "${transcript}"`);
-                const response = await result.response;
-                setTasks(prev => [{
-                    _id: Date.now().toString(),
-                    text: response.text(),
-                    priority: "high",
-                    createdAt: new Date().toISOString()
-                }, ...prev]);
-            } catch (error) { console.error(error); } 
-            finally { setIsProcessing(false); }
+                setTasks(prev => [{ _id: Date.now().toString(), text: result.response.text(), priority: "high", createdAt: new Date().toISOString() }, ...prev]);
+            } catch (error) { console.error(error); } finally { setIsProcessing(false); }
         };
     }, []);
 
@@ -124,27 +121,18 @@ const Dashboard = ({ onLogout }) => {
     const addTask = async (e) => {
         e.preventDefault();
         if (!newTask.trim()) return;
-
         const token = localStorage.getItem('token');
         try {
-            const res = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', {
-                text: newTask,
-                priority
-            }, { headers: { Authorization: token } });
-            
+            const res = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', { text: newTask, priority }, { headers: { Authorization: token } });
             setTasks([res.data, ...tasks]);
             setNewTask("");
-        } catch (error) {
-            alert("فشل الحفظ في قاعدة البيانات");
-        }
+        } catch (error) { alert("فشل الحفظ في قاعدة البيانات"); }
     };
 
     const deleteTask = async (id) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`https://remindme-backend3.onrender.com/api/tasks/${id}`, {
-                headers: { Authorization: token }
-            });
+            await axios.delete(`https://remindme-backend3.onrender.com/api/tasks/${id}`, { headers: { Authorization: token } });
             setTasks(tasks.filter(t => (t._id || t.id) !== id));
         } catch (err) { console.error("Error deleting task"); }
     };
@@ -165,35 +153,40 @@ const Dashboard = ({ onLogout }) => {
                 <nav className="sidebar-nav">
                     <button className="nav-item active">🏠 الرئيسية</button>
                     <button className="nav-item">📊 الإحصائيات</button>
-                    {/* ✅ زر تبديل الثيم اليدوي */}
-                    <button className="nav-item" onClick={toggleTheme}>
-                        {theme === 'deep-purple' ? '🌙 الوضع الليلي' : '☀️ الوضع النهاري'}
-                    </button>
+                    
+                    {/* اختيار الثيمات الجديد */}
+                    <div style={{ marginTop: '20px', padding: '10px' }}>
+                        <p style={{ color: '#888', fontSize: '0.8rem', marginBottom: '10px' }}>لون الواجهة:</p>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {themePalettes.map(t => (
+                                <button key={t.id} onClick={() => changeTheme(t)} 
+                                    style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: t.accent, border: '2px solid white', cursor: 'pointer' }} 
+                                />
+                            ))}
+                        </div>
+                    </div>
                 </nav>
-                <button className="logout-btn-sidebar" onClick={onLogout}>
-                    🚪 تسجيل الخروج
-                </button>
+                <button className="logout-btn-sidebar" onClick={onLogout}>🚪 تسجيل الخروج</button>
             </aside>
 
             <main className="main-content">
                 <header className="main-header">
-                    <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="header-text"
-                    >
+                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="header-text">
                         <h2>{getTimeGreeting()}، <span>{userName}</span></h2>
-                        <p>ماذا سننجز اليوم؟ لديك <span>{tasks.length}</span> عناصر</p>
+                        
+                        {/* عرض الجملة التحفيزية من AI */}
+                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                            style={{ fontStyle: 'italic', color: 'var(--accent-color)', marginBottom: '15px' }}>
+                            {aiQuote}
+                        </motion.p>
+                        
+                        <p>لديك <span>{tasks.length}</span> عناصر اليوم</p>
                     </motion.div>
 
                     <div className="ai-controls">
-                        <button 
-                            onClick={toggleRecording} 
-                            className={`ai-btn record ${isRecording ? 'active' : ''}`}
-                        >
+                        <button onClick={toggleRecording} className={`ai-btn record ${isRecording ? 'active' : ''}`}>
                             {isRecording ? "إيقاف ⏹️" : "تسجيل مباشر 🎙️"}
                         </button>
-
                         <label className="ai-btn upload">
                             {isProcessing ? "جاري المعالجة... ✨" : "رفع ملف 📁"}
                             <input type="file" accept="audio/*" onChange={handleFileUpload} hidden disabled={isProcessing} />
@@ -202,12 +195,7 @@ const Dashboard = ({ onLogout }) => {
                 </header>
 
                 <form className="task-input-bar" onSubmit={addTask}>
-                    <input 
-                        type="text" 
-                        placeholder="أضف مهمة يدوية هنا..." 
-                        value={newTask} 
-                        onChange={(e) => setNewTask(e.target.value)} 
-                    />
+                    <input type="text" placeholder="أضف مهمة يدوية هنا..." value={newTask} onChange={(e) => setNewTask(e.target.value)} />
                     <select value={priority} onChange={(e) => setPriority(e.target.value)}>
                         <option value="high">مهم 🔥</option>
                         <option value="medium">متوسط ⚡</option>
@@ -219,20 +207,10 @@ const Dashboard = ({ onLogout }) => {
                 <div className="tasks-grid">
                     <AnimatePresence>
                         {tasks.map(task => (
-                            <motion.div 
-                                key={task._id || task.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                transition={{ duration: 0.2 }}
-                                className={`task-card prio-${task.priority}`}
-                            >
+                            <motion.div key={task._id || task.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className={`task-card prio-${task.priority}`}>
                                 <div className="task-body">
                                     <p>{task.text}</p>
-                                    <span className="task-meta">
-                                        ⏰ {task.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "AI Analysis"}
-                                    </span>
+                                    <span className="task-meta">⏰ {task.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "AI Analysis"}</span>
                                 </div>
                                 <button className="delete-btn" onClick={() => deleteTask(task._id || task.id)}>×</button>
                             </motion.div>
