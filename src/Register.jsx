@@ -6,6 +6,8 @@ import logo from './remindme logo.jfif';
 
 const Register = ({ onLoginSuccess, switchToLogin }) => {
     const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+    // الحالة الجديدة للتحميل
+    const [loading, setLoading] = useState(false); 
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -13,8 +15,11 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // تفعيل حالة التحميل عند بدء الطلب
+        setLoading(true); 
+
         try {
-            // ✅ تم التعديل: استدعاء الرابط من config مباشرة دون تكرار /api
             const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
             if (response.status === 201 || response.status === 200) {
                 alert("🚀 تم إنشاء الحساب بنجاح!");
@@ -22,9 +27,11 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
             }
         } catch (error) {
             console.error("Connection Error:", error);
-            // جلب رسالة الخطأ الحقيقية من السيرفر إذا وجدت
-            const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكدي من الاتصال";
+            const errorMsg = error.response?.data?.error || "السيرفر لا يستجيب.. تأكد من الاتصال";
             alert("❌ خطأ: " + errorMsg);
+        } finally {
+            // إيقاف حالة التحميل سواء نجح أو فشل الطلب
+            setLoading(false); 
         }
     };
 
@@ -48,7 +55,15 @@ const Register = ({ onLoginSuccess, switchToLogin }) => {
                     <div className="input-group">
                         <input type="password" name="password" placeholder="كلمة المرور" onChange={handleChange} required />
                     </div>
-                    <button type="submit" className="glow-button">انضم الآن</button>
+
+                    {/* تعديل الزر ليتفاعل مع حالة التحميل */}
+                    <button 
+                        type="submit" 
+                        className={`glow-button ${loading ? 'loading' : ''}`}
+                        disabled={loading}
+                    >
+                        {loading ? "جاري الإنشاء..." : "انضم الآن"}
+                    </button>
                 </form>
 
                 <p className="switch-text">

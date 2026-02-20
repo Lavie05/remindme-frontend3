@@ -6,11 +6,13 @@
     justify-content: center;
     align-items: center;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px; /* مضاف لضمان عدم التصاق الكرت في الشاشات الصغيرة */
 }
 
 .glass-card {
     background: rgba(98, 16, 159, 0.2);
     backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px); /* لدعم متصفح Safari */
     border: 1px solid rgba(255, 222, 189, 0.2);
     padding: 2.5rem;
     border-radius: 25px;
@@ -21,7 +23,18 @@
     max-width: 400px;
 }
 
-/* تنسيق اللوجو الجديد */
+/* التنبيهات (رسائل الخطأ) - مضاف للنقطة القادمة */
+.error-message {
+    background: rgba(220, 14, 14, 0.2);
+    border: 1px solid #DC0E0E;
+    color: #ffcfcf;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    animation: shake 0.4s ease-in-out;
+}
+
 .logo-container {
     margin-bottom: 15px;
 }
@@ -61,12 +74,18 @@ input {
     padding: 12px;
     box-sizing: border-box;
     outline: none;
+    transition: border 0.3s ease;
+}
+
+input:focus {
+    border-color: #FE6244 !important;
 }
 
 input::placeholder {
     color: rgba(255, 222, 185, 0.5);
 }
 
+/* تعديلات الزر */
 .glow-button {
     background: linear-gradient(45deg, #DC0E0E, #FE6244);
     color: white;
@@ -80,11 +99,29 @@ input::placeholder {
     box-shadow: 0 5px 15px rgba(220, 14, 14, 0.4);
     width: 100%;
     margin-top: 10px;
+    position: relative;
+    overflow: hidden;
 }
 
-.glow-button:hover {
+.glow-button:hover:not(:disabled) {
     transform: scale(1.02);
     box-shadow: 0 8px 25px rgba(254, 98, 68, 0.6);
+}
+
+/* حالة الزر أثناء التحميل */
+.glow-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.7;
+    transform: scale(1);
+}
+
+/* أنيميشن بسيط عند ظهور رسالة الخطأ */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 .switch-text {
@@ -94,5 +131,11 @@ input::placeholder {
 
 .switch-text span {
     color: #FE6244;
-    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.switch-text span:hover {
+    opacity: 0.8;
+    text-decoration: underline;
 }
