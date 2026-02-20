@@ -1,53 +1,146 @@
-.login-theme-bg {
-  background: linear-gradient(135deg, #2D0B5A 0%, #1A0533 100%); /* البنفسجي من صفحة الدخول */
-  min-height: 100vh;
-  padding: 40px;
-  color: white;
+/* Dashboard.css */
+.dashboard-container {
+    background: radial-gradient(circle at top right, #1a0429 0%, #05010a 100%);
+    min-height: 100vh;
+    padding: 40px 20px;
 }
 
-.add-card-modern {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 25px;
-  border-radius: 24px;
+.dashboard-content {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-.login-style-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  background: #FE6244; /* البرتقالي من صفحة الدخول */
-  color: white;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(254, 98, 68, 0.4);
-  transition: 0.3s ease;
+/* الهيدر العلوي (الترحيب + زر التسجيل) */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-.login-style-btn:hover {
-  transform: scale(1.02);
-  background: #E5563B;
+.welcome-text h2 { color: #FFDEB9; font-size: 2.2rem; margin-bottom: 5px; }
+.welcome-text p { color: #888; }
+.welcome-text span { color: #FE6244; font-weight: bold; }
+
+/* زر التسجيل الذكي للذكاء الاصطناعي */
+.ai-record-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.reminder-card-modern {
-  padding: 25px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
+.ai-record-btn {
+    background: linear-gradient(135deg, #FE6244 0%, #ff2e63 100%);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(254, 98, 68, 0.4);
+    transition: all 0.3s ease;
+    z-index: 2;
 }
 
-.shadow-glow:hover {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  transform: translateY(-8px);
+.ai-record-btn.active {
+    background: #ff4d4d;
+    animation: pulseGlow 1.5s infinite;
 }
 
-.icon-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  padding: 5px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-left: 5px;
+/* تأثير النبض أثناء التسجيل */
+@keyframes pulseGlow {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
 }
+
+/* فورم إضافة مهمة */
+.add-task-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 40px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.add-task-form input {
+    flex: 2;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 15px;
+    color: white;
+    outline: none;
+}
+
+.priority-select {
+    flex: 0.5;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FFDEB9;
+    border-radius: 15px;
+    padding: 0 10px;
+    outline: none;
+    cursor: pointer;
+}
+
+.add-task-form button {
+    background: #FE6244;
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* كروت المهام والأولويات */
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.task-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    padding: 22px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.task-card:hover { transform: translateY(-5px); }
+
+/* ألوان الحواف الجانبية حسب الأولوية */
+.task-card.prio-high { border-left: 5px solid #ff4d4d; box-shadow: -5px 0 15px rgba(255, 77, 77, 0.1); }
+.task-card.prio-medium { border-left: 5px solid #FE6244; }
+.task-card.prio-low { border-left: 5px solid #4dff88; }
+
+.task-info h4 { color: #FFDEB9; margin-bottom: 6px; font-size: 1.1rem; line-height: 1.4; }
+.task-time { color: #666; font-size: 0.85rem; display: block; }
+
+.delete-task {
+    background: rgba(255, 77, 77, 0.1);
+    border: none;
+    color: #ff4d4d;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.delete-task:hover { background: #ff4d4d; color: white; }
