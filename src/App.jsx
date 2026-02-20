@@ -4,11 +4,12 @@ import Register from './Register';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import Intro from './Intro'; 
-import Chat from './Chat'; 
+// احذفي استيراد Chat مؤقتاً للتأكد إذا كان هو السبب
+// import Chat from './Chat'; 
 import axios from 'axios';
 
-// ✅ الرابط الموحد - تأكدي أنه بدون /api في النهاية لأننا عدلنا السيرفر
-axios.defaults.baseURL = 'https://remindme-backend3.onrender.com';
+// ✅ تصحيح الرابط ليشمل /api لتوحيد الطلبات
+axios.defaults.baseURL = 'https://remindme-backend3.onrender.com/api';
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -37,8 +38,8 @@ function App() {
 
       {isLoggedIn ? (
         <div className="dashboard-wrapper">
-          {/* ✅ الذكاء الاصطناعي يظهر فوق لوحة التحكم */}
-          <Chat /> 
+          {/* ⚠️ عطلنا الـ Chat مؤقتاً لنرى هل ستظهر الـ Dashboard */}
+          {/* <Chat /> */}
           <Dashboard onLogout={handleLogout} />
         </div>
       ) : (
