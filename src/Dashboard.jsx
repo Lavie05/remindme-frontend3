@@ -73,7 +73,7 @@ const Dashboard = ({ onLogout }) => {
     };
 
     const addTask = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         if (!newTask.trim()) return;
         const token = localStorage.getItem('token');
         try {
@@ -102,29 +102,33 @@ const Dashboard = ({ onLogout }) => {
         setShowStats(true);
     };
 
-    // --- 🎙️ ميزة الصوت الذكية ---
+    // --- 🎙️ ميزة الصوت الذكية (المعدلة لتظهر النص فوراً) ---
     const toggleVoiceRecording = () => {
         if (!recognition) return alert("متصفحك لا يدعم التعرف على الصوت");
+
         if (isRecording) {
             recognition.stop();
             setIsRecording(false);
         } else {
             recognition.lang = 'ar-SA';
+            recognition.continuous = false;
+            recognition.interimResults = true; // يسمح برؤية النص أثناء الكلام
+
             recognition.start();
             setIsRecording(true);
-            recognition.onresult = async (event) => {
+
+            recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
-                setIsProcessing(true);
-                try {
-                    const res = await axios.post('https://remindme-backend3.onrender.com/api/chat/voice-to-task', { transcript });
-                    const token = localStorage.getItem('token');
-                    const saveRes = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
-                        { text: `🎙️ ${res.data.text}`, priority: res.data.priority },
-                        { headers: { Authorization: token } }
-                    );
-                    setTasks(prev => [saveRes.data, ...prev]);
-                } catch (err) { console.error("Voice Error", err); }
-                finally { setIsProcessing(false); setIsRecording(false); }
+                setNewTask(transcript); // ✅ النص يظهر الآن في الخانة فوراً
+            };
+
+            recognition.onend = () => {
+                setIsRecording(false);
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Error:", event.error);
+                setIsRecording(false);
             };
         }
     };
