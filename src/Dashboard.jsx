@@ -49,7 +49,7 @@ const Dashboard = ({ onLogout }) => {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                const name = decoded?.name || decoded?.username || "مبدعنا";
+                const name = decoded?.name || decoded?.username || "شو عندك/ي اليوم؟";
                 setUserName(name);
                 fetchTasks(token);
                 generateAIQuote(name);
