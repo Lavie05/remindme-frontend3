@@ -102,38 +102,26 @@ const Dashboard = ({ onLogout }) => {
         setShowStats(true);
     };
 
-    // --- 🎙️ ميزة الصوت الذكية (المعدلة لتظهر النص فوراً) ---
     const toggleVoiceRecording = () => {
         if (!recognition) return alert("متصفحك لا يدعم التعرف على الصوت");
-
         if (isRecording) {
             recognition.stop();
             setIsRecording(false);
         } else {
             recognition.lang = 'ar-SA';
             recognition.continuous = false;
-            recognition.interimResults = true; // يسمح برؤية النص أثناء الكلام
-
+            recognition.interimResults = true;
             recognition.start();
             setIsRecording(true);
-
             recognition.onresult = (event) => {
                 const transcript = event.results[0][0].transcript;
-                setNewTask(transcript); // ✅ النص يظهر الآن في الخانة فوراً
+                setNewTask(transcript);
             };
-
-            recognition.onend = () => {
-                setIsRecording(false);
-            };
-
-            recognition.onerror = (event) => {
-                console.error("Speech Error:", event.error);
-                setIsRecording(false);
-            };
+            recognition.onend = () => setIsRecording(false);
+            recognition.onerror = () => setIsRecording(false);
         }
     };
 
-    // --- 🎬 تلخيص يوتيوب ---
     const handleYoutubeSummarize = async () => {
         const url = prompt("أدخل رابط فيديو اليوتيوب:");
         if (!url) return;
@@ -150,7 +138,6 @@ const Dashboard = ({ onLogout }) => {
         finally { setIsProcessing(false); }
     };
 
-    // --- 🖼️ تحليل الصور ---
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -183,10 +170,7 @@ const Dashboard = ({ onLogout }) => {
                 <nav className="sidebar-nav">
                     <button className="nav-item active">🏠 الرئيسية</button>
                     <button className="nav-item" onClick={handleStatsClick}>📊 الإحصائيات</button>
-                    <button className={`nav-item ${isRecording ? 'recording-pulse' : ''}`} onClick={toggleVoiceRecording}>
-                        {isRecording ? "🛑 سجل..." : "🎤 إضافة صوتية"}
-                    </button>
-                    <div style={{ marginTop: '20px', padding: '10px' }}>
+                    <div className="theme-selector" style={{ marginTop: '20px', padding: '10px' }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {themePalettes.map(t => (
                                 <button key={t.id} onClick={() => changeTheme(t)} 
@@ -226,9 +210,16 @@ const Dashboard = ({ onLogout }) => {
                 </form>
 
                 <div className="tasks-grid">
-                    <AnimatePresence>
+                    <AnimatePresence mode='popLayout'>
                         {tasks.map(task => (
-                            <motion.div key={task?._id || task?.id} layout className={`task-card prio-${task?.priority || 'medium'}`}>
+                            <motion.div 
+                                key={task?._id || task?.id} 
+                                layout
+                                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.5, filter: "blur(10px)", transition: { duration: 0.3 } }}
+                                className={`task-card prio-${task?.priority || 'medium'}`}
+                            >
                                 <div className="task-body">
                                     <p style={{ whiteSpace: 'pre-line' }}>{task?.text}</p>
                                     <span className="task-meta">⏰ {task?.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "الآن"}</span>
@@ -239,6 +230,16 @@ const Dashboard = ({ onLogout }) => {
                     </AnimatePresence>
                 </div>
             </main>
+
+            {/* زر الميكروفون العائم FAB */}
+            <motion.button 
+                className={`fab-mic ${isRecording ? 'recording' : ''}`} 
+                onClick={toggleVoiceRecording}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+            >
+                {isRecording ? "🛑" : "🎤"}
+            </motion.button>
         </div>
     );
 };

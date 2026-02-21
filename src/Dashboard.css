@@ -5,14 +5,35 @@
     --accent-color: #FE6244;
     --text-main: #FFDEB9;
     --glow-shadow: rgba(254, 98, 68, 0.5);
+    --card-bg: rgba(255, 255, 255, 0.04);
 }
 
+/* --- 1. تخصيص شريط التمرير (Modern Scrollbar) --- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
+/* --- تخطيط الصفحة --- */
 .dashboard-layout {
     display: flex;
     min-height: 100vh;
     background: var(--bg-gradient);
     color: var(--text-main);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     direction: rtl;
 }
 
@@ -20,108 +41,105 @@
 .sidebar {
     width: 260px;
     background: var(--sidebar-bg);
-    backdrop-filter: blur(15px);
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
     padding: 30px 20px;
     position: sticky;
     top: 0;
     height: 100vh;
+    z-index: 100;
 }
 
 .sidebar-logo h3 {
-    font-size: 24px;
+    font-size: 26px;
+    font-weight: 800;
     margin-bottom: 40px;
-    color: #fff;
+    letter-spacing: -1px;
 }
 
 .sidebar-logo span {
     color: var(--accent-color);
+    text-shadow: 0 0 15px var(--glow-shadow);
 }
 
 .nav-item {
     background: none;
     border: none;
-    color: #ccc;
+    color: rgba(255, 255, 255, 0.6);
     text-align: right;
-    padding: 12px 15px;
-    margin-bottom: 10px;
-    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    border-radius: 14px;
     cursor: pointer;
-    transition: 0.3s;
-    font-size: 16px;
-    width: 100%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .nav-item:hover, .nav-item.active {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     color: var(--accent-color);
-}
-
-/* --- 🎙️ حركة نبض الميكروفون الذكي --- */
-.recording-pulse {
-    animation: pulse-red 1.5s infinite;
-    background-color: rgba(255, 0, 0, 0.15) !important;
-    color: #ff4b2b !important;
-    border: 1px solid rgba(255, 0, 0, 0.3) !important;
-}
-
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(255, 75, 43, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0); }
+    transform: translateX(-5px);
 }
 
 /* --- Main Content Area --- */
 .main-content {
     flex: 1;
     padding: 40px;
-    overflow-y: auto;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .main-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 40px;
+    align-items: center;
+    margin-bottom: 50px;
 }
 
-.header-text h2 span {
-    color: var(--accent-color);
+.header-text h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
 }
 
-/* --- AI Controls --- */
-.ai-controls {
-    display: flex;
-    gap: 12px;
+.header-text p {
+    opacity: 0.8;
+    font-size: 15px;
 }
 
+/* --- AI Controls & Buttons --- */
 .ai-btn {
-    padding: 10px 20px;
-    border-radius: 10px;
+    padding: 12px 24px;
+    border-radius: 12px;
     border: none;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    transition: 0.3s;
+    transition: 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .ai-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transform: translateY(-4px);
+    filter: brightness(1.2);
 }
 
 /* --- Task Input Form --- */
 .task-input-bar {
     display: flex;
     gap: 15px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 15px;
-    border-radius: 15px;
-    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 10px;
+    border-radius: 18px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
 }
 
 .task-input-bar input {
@@ -129,6 +147,7 @@
     background: none;
     border: none;
     color: #fff;
+    padding: 12px 20px;
     font-size: 16px;
     outline: none;
 }
@@ -137,70 +156,116 @@
     background: var(--accent-color);
     color: white;
     border: none;
-    padding: 10px 25px;
-    border-radius: 10px;
+    padding: 0 30px;
+    border-radius: 14px;
+    font-weight: 600;
     cursor: pointer;
+    transition: 0.3s;
 }
 
 /* --- Tasks Grid & Cards --- */
 .tasks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
 }
 
 .task-card {
-    background: rgba(255, 255, 255, 0.03);
-    border-right: 4px solid #888;
-    padding: 20px;
-    border-radius: 15px;
+    background: var(--card-bg);
+    border-right: 5px solid #888;
+    padding: 25px;
+    border-radius: 20px;
     position: relative;
-    transition: 0.3s;
-    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .task-card:hover {
+    transform: translateY(-5px);
     background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* --- ألوان الأولويات --- */
-.prio-high { border-right-color: #ff4b2b; box-shadow: 0 0 15px rgba(255, 75, 43, 0.1); }
-.prio-medium { border-right-color: #FE6244; }
+.prio-high { border-right-color: #ff4b2b; box-shadow: 0 10px 30px rgba(255, 75, 43, 0.15); }
+.prio-medium { border-right-color: var(--accent-color); }
 .prio-low { border-right-color: #4CAF50; }
 
 .task-body p {
-    margin: 0 0 10px 0;
-    line-height: 1.6;
+    font-size: 16px;
+    margin-bottom: 15px;
+    line-height: 1.7;
 }
 
 .task-meta {
-    font-size: 12px;
-    color: #888;
+    font-size: 13px;
+    opacity: 0.5;
+    display: block;
 }
 
 .delete-btn {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background: none;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.05);
     border: none;
-    color: #555;
-    font-size: 20px;
+    color: #888;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.3s;
 }
 
 .delete-btn:hover {
-    color: #ff4b2b;
+    background: #ff4b2b;
+    color: white;
+    transform: rotate(90deg);
 }
 
+/* --- 🎙️ Floating Action Button (FAB) --- */
+.fab-mic {
+    position: fixed;
+    bottom: 40px;
+    right: 40px; /* نقلناه لليمين لسهولة الوصول بالإبهام */
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 35px var(--glow-shadow);
+    z-index: 1000;
+}
+
+.fab-mic.recording {
+    background: #ff4b2b;
+    animation: pulse-glow 1.5s infinite;
+}
+
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0.7); transform: scale(1); }
+    70% { box-shadow: 0 0 0 25px rgba(255, 75, 43, 0); transform: scale(1.1); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0); transform: scale(1); }
+}
+
+/* --- Logout Button --- */
 .logout-btn-sidebar {
     margin-top: auto;
-    background: rgba(255, 75, 43, 0.1);
+    background: rgba(255, 75, 43, 0.05);
     color: #ff4b2b;
-    border: 1px solid rgba(255, 75, 43, 0.3);
-    padding: 12px;
-    border-radius: 12px;
+    border: 1px solid rgba(255, 75, 43, 0.2);
+    padding: 14px;
+    border-radius: 16px;
+    font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
 }
@@ -208,4 +273,12 @@
 .logout-btn-sidebar:hover {
     background: #ff4b2b;
     color: white;
+    box-shadow: 0 8px 20px rgba(255, 75, 43, 0.3);
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 900px) {
+    .sidebar { width: 80px; padding: 20px 10px; }
+    .sidebar-logo h3, .nav-item span { display: none; }
+    .main-content { padding: 20px; }
 }
