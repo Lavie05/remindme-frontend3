@@ -19,7 +19,6 @@ const Dashboard = ({ onLogout }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [userName, setUserName] = useState("صديقي");
     const [aiQuote, setAiQuote] = useState("استعد لإنجاز عظيم اليوم! ✨");
-    
     const [showStats, setShowStats] = useState(false);
     const [statsData, setStatsData] = useState({ total: 0, high: 0, medium: 0, low: 0 });
 
@@ -35,15 +34,6 @@ const Dashboard = ({ onLogout }) => {
             document.documentElement.style.setProperty(key, theme.colors[key]);
         });
         localStorage.setItem('selectedTheme', JSON.stringify(theme));
-    };
-
-    const generateAIQuote = async (name) => {
-        try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const prompt = `اكتب جملة تحفيزية قصيرة جداً ومشجعة باللغة العربية للمستخدم "${name}". استخدم إيموجي واحد فقط.`;
-            const result = await model.generateContent(prompt);
-            setAiQuote(result.response.text());
-        } catch (e) { console.log("AI Quote Error"); }
     };
 
     useEffect(() => {
@@ -64,6 +54,15 @@ const Dashboard = ({ onLogout }) => {
         }
     }, []);
 
+    const generateAIQuote = async (name) => {
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const prompt = `اكتب جملة تحفيزية قصيرة جداً ومشجعة باللغة العربية للمستخدم "${name}". استخدم إيموجي واحد فقط.`;
+            const result = await model.generateContent(prompt);
+            setAiQuote(result.response.text());
+        } catch (e) { console.log("AI Quote Error"); }
+    };
+
     const fetchTasks = async (token) => {
         try {
             const res = await axios.get('https://remindme-backend3.onrender.com/api/tasks', {
@@ -72,43 +71,6 @@ const Dashboard = ({ onLogout }) => {
             setTasks(Array.isArray(res.data) ? res.data : []);
         } catch (err) { console.error("Error fetching tasks"); }
     };
-
-    const handleStatsClick = () => {
-        const stats = {
-            total: tasks?.length || 0,
-            high: tasks?.filter(t => t?.priority === 'high').length || 0,
-            medium: tasks?.filter(t => t?.priority === 'medium').length || 0,
-            low: tasks?.filter(t => t?.priority === 'low').length || 0,
-        };
-        setStatsData(stats);
-        setShowStats(true);
-    };
-
-    const handleYoutubeSummarize = async () => {
-        const url = prompt("أدخل رابط فيديو اليوتيوب:");
-        if (!url) return;
-
-        setIsProcessing(true);
-        try {
-            // تصحيح الرابط ليطابق مسار الباك إند
-            const res = await axios.post('https://remindme-backend3.onrender.com/api/chat/summarize-youtube', { videoUrl: url });
-            const summary = res.data.summary;
-
-            const token = localStorage.getItem('token');
-            const saveRes = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
-                { text: `📺 ملخص فيديو:\n${summary}`, priority: "medium" },
-                { headers: { Authorization: token } }
-            );
-            setTasks(prev => [saveRes.data, ...prev]);
-
-        } catch (error) {
-            alert("حدث خطأ. تأكد أن الفيديو يحتوي على ترجمة (CC) وأن الرابط صحيح.");
-        } finally {
-            setIsProcessing(false);
-        }
-    };
-
-    // ... (بقية الوظائف handleFileUpload و toggleRecording تبقى كما هي ولكن مع إضافة حماية البيانات)
 
     const addTask = async (e) => {
         e.preventDefault();
@@ -129,63 +91,147 @@ const Dashboard = ({ onLogout }) => {
         } catch (err) { console.error("Error deleting task"); }
     };
 
+    const handleStatsClick = () => {
+        const stats = {
+            total: tasks?.length || 0,
+            high: tasks?.filter(t => t?.priority === 'high').length || 0,
+            medium: tasks?.filter(t => t?.priority === 'medium').length || 0,
+            low: tasks?.filter(t => t?.priority === 'low').length || 0,
+        };
+        setStatsData(stats);
+        setShowStats(true);
+    };
+
+    // --- 🎙️ ميزة الصوت الذكية ---
+    const toggleVoiceRecording = () => {
+        if (!recognition) return alert("متصفحك لا يدعم التعرف على الصوت");
+        if (isRecording) {
+            recognition.stop();
+            setIsRecording(false);
+        } else {
+            recognition.lang = 'ar-SA';
+            recognition.start();
+            setIsRecording(true);
+            recognition.onresult = async (event) => {
+                const transcript = event.results[0][0].transcript;
+                setIsProcessing(true);
+                try {
+                    const res = await axios.post('https://remindme-backend3.onrender.com/api/chat/voice-to-task', { transcript });
+                    const token = localStorage.getItem('token');
+                    const saveRes = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
+                        { text: `🎙️ ${res.data.text}`, priority: res.data.priority },
+                        { headers: { Authorization: token } }
+                    );
+                    setTasks(prev => [saveRes.data, ...prev]);
+                } catch (err) { console.error("Voice Error", err); }
+                finally { setIsProcessing(false); setIsRecording(false); }
+            };
+        }
+    };
+
+    // --- 🎬 تلخيص يوتيوب ---
+    const handleYoutubeSummarize = async () => {
+        const url = prompt("أدخل رابط فيديو اليوتيوب:");
+        if (!url) return;
+        setIsProcessing(true);
+        try {
+            const res = await axios.post('https://remindme-backend3.onrender.com/api/chat/summarize-youtube', { videoUrl: url });
+            const token = localStorage.getItem('token');
+            const saveRes = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
+                { text: `📺 ملخص فيديو:\n${res.data.summary}`, priority: "medium" },
+                { headers: { Authorization: token } }
+            );
+            setTasks(prev => [saveRes.data, ...prev]);
+        } catch (error) { alert("حدث خطأ في التلخيص"); }
+        finally { setIsProcessing(false); }
+    };
+
+    // --- 🖼️ تحليل الصور ---
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setIsProcessing(true);
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = async () => {
+                const base64Data = reader.result.split(',')[1];
+                const result = await model.generateContent([
+                    "استخرج المهام من هذه الصورة بوضوح وبالعربية.",
+                    { inlineData: { data: base64Data, mimeType: file.type } }
+                ]);
+                const token = localStorage.getItem('token');
+                const saveRes = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
+                    { text: `🖼️ مهام من صورة:\n${result.response.text()}`, priority: "high" },
+                    { headers: { Authorization: token } }
+                );
+                setTasks(prev => [saveRes.data, ...prev]);
+                setIsProcessing(false);
+            };
+        } catch (e) { alert("فشل تحليل الصورة"); setIsProcessing(false); }
+    };
+
     return (
         <div className="dashboard-layout">
             <aside className="sidebar">
-                <div className="sidebar-logo">
-                    <h3>Remind<span>ME</span></h3>
-                </div>
+                <div className="sidebar-logo"><h3>Remind<span>ME</span></h3></div>
                 <nav className="sidebar-nav">
                     <button className="nav-item active">🏠 الرئيسية</button>
                     <button className="nav-item" onClick={handleStatsClick}>📊 الإحصائيات</button>
+                    <button className={`nav-item ${isRecording ? 'recording-pulse' : ''}`} onClick={toggleVoiceRecording}>
+                        {isRecording ? "🛑 سجل..." : "🎤 إضافة صوتية"}
+                    </button>
                     <div style={{ marginTop: '20px', padding: '10px' }}>
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {themePalettes.map(t => (
                                 <button key={t.id} onClick={() => changeTheme(t)} 
-                                    style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: t.accent, border: '2px solid white', cursor: 'pointer' }} 
-                                />
+                                    style={{ width: '25px', height: '25px', borderRadius: '50%', backgroundColor: t.accent, border: '2px solid white', cursor: 'pointer' }} />
                             ))}
                         </div>
                     </div>
                 </nav>
-                <button className="logout-btn-sidebar" onClick={onLogout}>🚪 تسجيل الخروج</button>
+                <button className="logout-btn-sidebar" onClick={onLogout}>🚪 خروج</button>
             </aside>
 
             <main className="main-content">
                 <header className="main-header">
-                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="header-text">
+                    <div className="header-text">
                         <h2>صباح الإبداع، <span>{userName}</span></h2>
                         <p>{aiQuote}</p>
-                        <p>لديك <span>{tasks?.length || 0}</span> عناصر اليوم</p>
-                    </motion.div>
-
-                    <div className="ai-controls">
-                        <button onClick={handleYoutubeSummarize} className="ai-btn" style={{ background: '#FF0000', color: 'white' }} disabled={isProcessing}>
-                            {isProcessing ? "جاري التلخيص..." : "تلخيص يوتيوب 📺"}
+                    </div>
+                    <div className="ai-controls" style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={handleYoutubeSummarize} className="ai-btn" style={{ background: '#FF0000', color: 'white' }}>
+                            {isProcessing ? "جاري..." : "يوتيوب 📺"}
                         </button>
+                        <label className="ai-btn" style={{ background: '#4CAF50', color: 'white', cursor: 'pointer' }}>
+                            {isProcessing ? "جاري..." : "صورة 🖼️"}
+                            <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
+                        </label>
                     </div>
                 </header>
 
                 <form className="task-input-bar" onSubmit={addTask}>
-                    <input type="text" placeholder="أضف مهمة يدوية..." value={newTask} onChange={(e) => setNewTask(e.target.value)} />
+                    <input type="text" placeholder="أضف مهمة..." value={newTask} onChange={(e) => setNewTask(e.target.value)} />
+                    <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ background: '#333', color: 'white', border: 'none', marginLeft: '10px' }}>
+                        <option value="high">عالية</option>
+                        <option value="medium">متوسطة</option>
+                        <option value="low">منخفضة</option>
+                    </select>
                     <button type="submit">إضافة</button>
                 </form>
 
                 <div className="tasks-grid">
                     <AnimatePresence>
-                        {tasks && tasks.length > 0 ? (
-                            tasks.map(task => (
-                                <motion.div key={task?._id || task?.id} layout className={`task-card prio-${task?.priority || 'medium'}`}>
-                                    <div className="task-body">
-                                        <p style={{ whiteSpace: 'pre-line' }}>{task?.text || ""}</p>
-                                        <span className="task-meta">⏰ {task?.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "AI Analysis"}</span>
-                                    </div>
-                                    <button className="delete-btn" onClick={() => deleteTask(task?._id || task?.id)}>×</button>
-                                </motion.div>
-                            ))
-                        ) : (
-                            <p style={{ color: 'white', textAlign: 'center', gridColumn: '1/-1' }}>لا يوجد مهام حالياً ✨</p>
-                        )}
+                        {tasks.map(task => (
+                            <motion.div key={task?._id || task?.id} layout className={`task-card prio-${task?.priority || 'medium'}`}>
+                                <div className="task-body">
+                                    <p style={{ whiteSpace: 'pre-line' }}>{task?.text}</p>
+                                    <span className="task-meta">⏰ {task?.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "الآن"}</span>
+                                </div>
+                                <button className="delete-btn" onClick={() => deleteTask(task?._id || task?.id)}>×</button>
+                            </motion.div>
+                        ))}
                     </AnimatePresence>
                 </div>
             </main>
