@@ -15,8 +15,8 @@ const Dashboard = ({ onLogout }) => {
     const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState("");
     const [priority, setPriority] = useState("medium");
-    const [taskDate, setTaskDate] = useState(""); // ✅ تم النقل للداخل
-    const [taskTime, setTaskTime] = useState(""); // ✅ تم النقل للداخل
+    const [taskDate, setTaskDate] = useState(""); 
+    const [taskTime, setTaskTime] = useState(""); 
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [userName, setUserName] = useState("صديقي");
@@ -38,6 +38,7 @@ const Dashboard = ({ onLogout }) => {
         localStorage.setItem('selectedTheme', JSON.stringify(theme));
     };
 
+    // --- التأثير الأول: التحميل الأولي وطلب إذن الإشعارات ---
     useEffect(() => {
         const savedTheme = localStorage.getItem('selectedTheme');
         if (savedTheme) {
@@ -54,7 +55,48 @@ const Dashboard = ({ onLogout }) => {
                 generateAIQuote(name);
             } catch (err) { console.error("Invalid token"); }
         }
+
+        // طلب إذن الإشعارات من المتصفح
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
     }, []);
+
+    // --- التأثير الثاني: نظام المراقب الذكي لفحص المواعيد كل دقيقة ---
+    useEffect(() => {
+        const checkReminders = setInterval(() => {
+            const now = new Date();
+            // تنسيق الوقت ليطابق المدخل (HH:mm)
+            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + 
+                                now.getMinutes().toString().padStart(2, '0');
+            // تنسيق التاريخ ليطابق المدخل (YYYY-MM-DD)
+            const currentDate = now.toISOString().split('T')[0];
+
+            tasks.forEach(task => {
+                if (task.reminderDate === currentDate && task.reminderTime === currentTime) {
+                    if (!task.notified) {
+                        showNotification(task.text);
+                        task.notified = true; // علامة مؤقتة لمنع تكرار التنبيه في نفس الدقيقة
+                    }
+                }
+            });
+        }, 60000); // فحص كل 60 ثانية
+
+        return () => clearInterval(checkReminders);
+    }, [tasks]);
+
+    const showNotification = (taskText) => {
+        if (Notification.permission === "granted") {
+            new Notification("📌 تذكر موعدك!", {
+                body: taskText,
+                icon: "/favicon.ico"
+            });
+            
+            // تشغيل صوت تنبيه احترافي
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.play().catch(e => console.log("Audio play error"));
+        }
+    };
 
     const generateAIQuote = async (name) => {
         try {
@@ -83,14 +125,14 @@ const Dashboard = ({ onLogout }) => {
                 { 
                     text: newTask, 
                     priority,
-                    reminderDate: taskDate, // ✅ إرسال التاريخ
-                    reminderTime: taskTime  // ✅ إرسال الوقت
+                    reminderDate: taskDate,
+                    reminderTime: taskTime 
                 }, 
                 { headers: { Authorization: token } }
             );
             setTasks(prev => [res.data, ...prev]);
             setNewTask("");
-            setTaskDate(""); // تصفير الحقول بعد الإضافة
+            setTaskDate(""); 
             setTaskTime("");
         } catch (error) { alert("فشل الحفظ"); }
     };
@@ -213,8 +255,6 @@ const Dashboard = ({ onLogout }) => {
 
                 <form className="task-input-bar" onSubmit={addTask}>
                     <input type="text" placeholder="أضف مهمة..." value={newTask} onChange={(e) => setNewTask(e.target.value)} />
-                    
-                    {/* ✅ حقول التاريخ والوقت الجديدة */}
                     <input type="date" className="date-input" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} />
                     <input type="time" className="time-input" value={taskTime} onChange={(e) => setTaskTime(e.target.value)} />
 
@@ -240,7 +280,6 @@ const Dashboard = ({ onLogout }) => {
                                 <div className="task-body">
                                     <p style={{ whiteSpace: 'pre-line' }}>{task?.text}</p>
                                     
-                                    {/* ✅ عرض التاريخ والوقت على الكارت إذا وجدا */}
                                     <div className="task-reminders">
                                         {task?.reminderDate && <span className="reminder-tag">📅 {task.reminderDate}</span>}
                                         {task?.reminderTime && <span className="reminder-tag">⏰ {task.reminderTime}</span>}
