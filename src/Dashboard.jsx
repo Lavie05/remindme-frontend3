@@ -15,6 +15,8 @@ const Dashboard = ({ onLogout }) => {
     const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState("");
     const [priority, setPriority] = useState("medium");
+    const [taskDate, setTaskDate] = useState(""); // ✅ تم النقل للداخل
+    const [taskTime, setTaskTime] = useState(""); // ✅ تم النقل للداخل
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [userName, setUserName] = useState("صديقي");
@@ -77,9 +79,19 @@ const Dashboard = ({ onLogout }) => {
         if (!newTask.trim()) return;
         const token = localStorage.getItem('token');
         try {
-            const res = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', { text: newTask, priority }, { headers: { Authorization: token } });
+            const res = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
+                { 
+                    text: newTask, 
+                    priority,
+                    reminderDate: taskDate, // ✅ إرسال التاريخ
+                    reminderTime: taskTime  // ✅ إرسال الوقت
+                }, 
+                { headers: { Authorization: token } }
+            );
             setTasks(prev => [res.data, ...prev]);
             setNewTask("");
+            setTaskDate(""); // تصفير الحقول بعد الإضافة
+            setTaskTime("");
         } catch (error) { alert("فشل الحفظ"); }
     };
 
@@ -201,6 +213,11 @@ const Dashboard = ({ onLogout }) => {
 
                 <form className="task-input-bar" onSubmit={addTask}>
                     <input type="text" placeholder="أضف مهمة..." value={newTask} onChange={(e) => setNewTask(e.target.value)} />
+                    
+                    {/* ✅ حقول التاريخ والوقت الجديدة */}
+                    <input type="date" className="date-input" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} />
+                    <input type="time" className="time-input" value={taskTime} onChange={(e) => setTaskTime(e.target.value)} />
+
                     <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ background: '#333', color: 'white', border: 'none', marginLeft: '10px' }}>
                         <option value="high">عالية</option>
                         <option value="medium">متوسطة</option>
@@ -222,7 +239,14 @@ const Dashboard = ({ onLogout }) => {
                             >
                                 <div className="task-body">
                                     <p style={{ whiteSpace: 'pre-line' }}>{task?.text}</p>
-                                    <span className="task-meta">⏰ {task?.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "الآن"}</span>
+                                    
+                                    {/* ✅ عرض التاريخ والوقت على الكارت إذا وجدا */}
+                                    <div className="task-reminders">
+                                        {task?.reminderDate && <span className="reminder-tag">📅 {task.reminderDate}</span>}
+                                        {task?.reminderTime && <span className="reminder-tag">⏰ {task.reminderTime}</span>}
+                                    </div>
+
+                                    <span className="task-meta">⏰ تاريخ الإضافة: {task?.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "الآن"}</span>
                                 </div>
                                 <button className="delete-btn" onClick={() => deleteTask(task?._id || task?.id)}>×</button>
                             </motion.div>
@@ -231,7 +255,6 @@ const Dashboard = ({ onLogout }) => {
                 </div>
             </main>
 
-            {/* زر الميكروفون العائم FAB */}
             <motion.button 
                 className={`fab-mic ${isRecording ? 'recording' : ''}`} 
                 onClick={toggleVoiceRecording}
