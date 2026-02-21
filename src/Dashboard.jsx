@@ -66,11 +66,18 @@ const Dashboard = ({ onLogout }) => {
     useEffect(() => {
         const checkReminders = setInterval(() => {
             const now = new Date();
-            // تنسيق الوقت ليطابق المدخل (HH:mm)
-            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + 
-                                now.getMinutes().toString().padStart(2, '0');
-            // تنسيق التاريخ ليطابق المدخل (YYYY-MM-DD)
-            const currentDate = now.toISOString().split('T')[0];
+           // --- التعديل المضمون للوقت المحلي ---
+const hours = now.getHours().toString().padStart(2, '0');
+const minutes = now.getMinutes().toString().padStart(2, '0');
+const currentTime = `${hours}:${minutes}`;
+
+// الحصول على التاريخ المحلي بتنسيق YYYY-MM-DD
+const year = now.getFullYear();
+const month = (now.getMonth() + 1).toString().padStart(2, '0');
+const day = now.getDate().toString().padStart(2, '0');
+const currentDate = `${year}-${month}-${day}`;
+
+console.log("الآن:", currentDate, currentTime); // عشان تشوفي في الكونسول التطبيق شايف إيه
 
             tasks.forEach(task => {
                 if (task.reminderDate === currentDate && task.reminderTime === currentTime) {
