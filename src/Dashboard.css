@@ -1,299 +1,211 @@
-/* Dashboard.css - النسخة الكاملة والمطورة */
-
-/* 1. تعريف متغيرات الثيم (Theming Variables) */
+/* --- المتغيرات الأساسية (تتغير تلقائياً مع الثيم) --- */
 :root {
-    /* الوضع الافتراضي: Deep Purple (ليلي) */
     --bg-gradient: radial-gradient(circle at top right, #1a0429 0%, #05010a 100%);
     --sidebar-bg: rgba(10, 5, 20, 0.6);
     --accent-color: #FE6244;
-    --accent-hover: #ff7e67;
     --text-main: #FFDEB9;
-    --text-dim: #888;
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --input-bg: rgba(255, 255, 255, 0.05);
     --glow-shadow: rgba(254, 98, 68, 0.5);
-    --glass-border: rgba(255, 255, 255, 0.08);
 }
 
-[data-theme='midnight'] {
-    /* وضع Midnight Blue (نهاري/هادئ) */
-    --bg-gradient: radial-gradient(circle at top right, #051622 0%, #02090e 100%);
-    --sidebar-bg: rgba(5, 22, 34, 0.8);
-    --accent-color: #1ba098; /* تركواز */
-    --accent-hover: #23c5bb;
-    --text-main: #d1f2f0;
-    --text-dim: #6a8d8b;
-    --card-bg: rgba(27, 160, 152, 0.05);
-    --input-bg: rgba(27, 160, 152, 0.1);
-    --glow-shadow: rgba(27, 160, 152, 0.5);
-    --glass-border: rgba(27, 160, 152, 0.2);
-}
-
-/* 2. التوزيع الأساسي (Layout) */
 .dashboard-layout {
     display: flex;
     min-height: 100vh;
     background: var(--bg-gradient);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     direction: rtl;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); /* انتقال ناعم للثيم */
 }
 
-/* 3. القائمة الجانبية (Sidebar) */
+/* --- Sidebar Style --- */
 .sidebar {
     width: 260px;
     background: var(--sidebar-bg);
-    backdrop-filter: blur(20px);
-    border-left: 1px solid var(--glass-border);
-    padding: 30px 20px;
+    backdrop-filter: blur(15px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
+    padding: 30px 20px;
     position: sticky;
     top: 0;
     height: 100vh;
-    z-index: 100;
 }
 
 .sidebar-logo h3 {
-    color: var(--text-main);
-    font-size: 1.8rem;
-    text-align: center;
+    font-size: 24px;
     margin-bottom: 40px;
+    color: #fff;
 }
 
-.sidebar-logo span { color: var(--accent-color); }
-
-.sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    flex-grow: 1;
+.sidebar-logo span {
+    color: var(--accent-color);
 }
 
 .nav-item {
-    background: transparent;
+    background: none;
     border: none;
-    color: var(--text-dim);
-    padding: 12px 18px;
+    color: #ccc;
     text-align: right;
+    padding: 12px 15px;
+    margin-bottom: 10px;
     border-radius: 12px;
     cursor: pointer;
     transition: 0.3s;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 16px;
+    width: 100%;
 }
 
-.nav-item.active, .nav-item:hover {
-    background: rgba(254, 98, 68, 0.1);
-    color: var(--text-main);
+.nav-item:hover, .nav-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--accent-color);
 }
 
-.logout-btn-sidebar {
-    background: rgba(255, 77, 77, 0.05);
-    border: 1px solid rgba(255, 77, 77, 0.2);
-    color: #ff4d4d;
-    padding: 12px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: auto;
+/* --- 🎙️ حركة نبض الميكروفون الذكي --- */
+.recording-pulse {
+    animation: pulse-red 1.5s infinite;
+    background-color: rgba(255, 0, 0, 0.15) !important;
+    color: #ff4b2b !important;
+    border: 1px solid rgba(255, 0, 0, 0.3) !important;
 }
 
-.logout-btn-sidebar:hover {
-    background: #ff4d4d;
-    color: white;
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 75, 43, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0); }
 }
 
-/* 4. المحتوى الرئيسي */
+/* --- Main Content Area --- */
 .main-content {
     flex: 1;
     padding: 40px;
-    max-width: 1100px;
-    margin: 0 auto;
+    overflow-y: auto;
 }
 
-/* 5. الهيدر (الترحيب) */
 .main-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 40px;
-    flex-wrap: wrap;
-    gap: 20px;
 }
 
-.header-text h2 { 
-    color: var(--text-main); 
-    font-size: 2.4rem; 
-    margin-bottom: 8px;
+.header-text h2 span {
+    color: var(--accent-color);
 }
 
-.header-text h2 span { 
-    color: var(--accent-color); 
-    font-weight: 800;
-    text-shadow: 0 0 20px var(--glow-shadow);
-}
-
-.header-text p { color: var(--text-dim); font-size: 1.1rem; }
-
-/* 6. أزرار الـ AI */
-.ai-controls { display: flex; gap: 12px; }
-
-.ai-btn {
-    padding: 12px 24px;
-    border-radius: 50px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.ai-btn.record {
-    background: linear-gradient(135deg, var(--accent-color) 0%, #ff2e63 100%);
-    color: white;
-    box-shadow: 0 4px 15px var(--glow-shadow);
-}
-
-.ai-btn.record.active {
-    background: #ff4d4d;
-    animation: pulseGlow 1.5s infinite;
-}
-
-@keyframes pulseGlow {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 var(--glow-shadow); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-}
-
-/* 7. فورم الإدخال */
-.task-input-bar {
+/* --- AI Controls --- */
+.ai-controls {
     display: flex;
     gap: 12px;
-    margin-bottom: 40px;
-    background: var(--input-bg);
-    padding: 10px;
-    border-radius: 20px;
-    border: 1px solid var(--glass-border);
+}
+
+.ai-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ai-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* --- Task Input Form --- */
+.task-input-bar {
+    display: flex;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 30px;
 }
 
 .task-input-bar input {
-    flex: 2;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    padding: 15px 20px;
-    border-radius: 15px;
-    color: white;
+    flex: 1;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 16px;
     outline: none;
 }
 
 .task-input-bar button {
     background: var(--accent-color);
     color: white;
-    padding: 0 30px;
-    border-radius: 15px;
-    font-weight: bold;
-    cursor: pointer;
     border: none;
-    transition: 0.3s;
+    padding: 10px 25px;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
-.task-input-bar button:hover {
-    background: var(--accent-hover);
-    transform: scale(1.02);
-}
-
-/* 8. كروت المهام */
+/* --- Tasks Grid & Cards --- */
 .tasks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
 }
 
 .task-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    padding: 22px;
-    border-radius: 20px;
-    border: 1px solid var(--glass-border);
-    display: flex;
-    justify-content: space-between;
-    transition: 0.3s ease;
-}
-
-.task-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.05); }
-
-.task-body p { 
-    color: var(--text-main); 
-    font-size: 1.05rem; 
-    line-height: 1.7; 
-}/* --- نافذة الإحصائيات (Stats Modal & Overlay) --- */
-.stats-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(12px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    direction: rtl;
-}
-
-.stats-modal {
-    background: var(--sidebar-bg);
-    border: 1px solid var(--glass-border);
-    padding: 40px;
-    border-radius: 35px;
-    width: 90%;
-    max-width: 480px;
-    text-align: center;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-}
-
-.stats-grid-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-item {
     background: rgba(255, 255, 255, 0.03);
-    padding: 25px 15px;
-    border-radius: 24px;
-    border: 1px solid var(--glass-border);
+    border-right: 4px solid #888;
+    padding: 20px;
+    border-radius: 15px;
+    position: relative;
+    transition: 0.3s;
+    backdrop-filter: blur(5px);
 }
 
-.stat-item span {
-    display: block;
-    font-size: 2.2rem;
-    font-weight: 900;
-    margin-bottom: 5px;
+.task-card:hover {
+    background: rgba(255, 255, 255, 0.07);
 }
 
-/* ألوان الأرقام */
-.prio-stats-total { color: var(--text-main); }
-.prio-stats-high { color: #ff4d4d; }
-.prio-stats-medium { color: #ffcc00; }
-.prio-stats-low { color: #00ccff; }
+/* --- ألوان الأولويات --- */
+.prio-high { border-right-color: #ff4b2b; box-shadow: 0 0 15px rgba(255, 75, 43, 0.1); }
+.prio-medium { border-right-color: #FE6244; }
+.prio-low { border-right-color: #4CAF50; }
 
-.close-stats-btn {
-    background: var(--accent-color);
-    color: white;
+.task-body p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+}
+
+.task-meta {
+    font-size: 12px;
+    color: #888;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
     border: none;
-    padding: 14px 40px;
-    border-radius: 16px;
-    font-weight: bold;
+    color: #555;
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.delete-btn:hover {
+    color: #ff4b2b;
+}
+
+.logout-btn-sidebar {
+    margin-top: auto;
+    background: rgba(255, 75, 43, 0.1);
+    color: #ff4b2b;
+    border: 1px solid rgba(255, 75, 43, 0.3);
+    padding: 12px;
+    border-radius: 12px;
     cursor: pointer;
     transition: 0.3s;
-    width: 100%;
 }
 
-.close-stats-btn:hover {
-    background: var(--accent-hover);
-    transform: scale(1.03);
+.logout-btn-sidebar:hover {
+    background: #ff4b2b;
+    color: white;
 }
