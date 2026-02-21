@@ -19,7 +19,7 @@ const Dashboard = ({ onLogout }) => {
     const [taskTime, setTaskTime] = useState(""); 
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [userName, setUserName] = useState("صديقي");
+    const [userName, setUserName] = useState("شو عندك اليوم؟");
     const [aiQuote, setAiQuote] = useState("استعد لإنجاز عظيم اليوم! ✨");
     const [showStats, setShowStats] = useState(false);
     const [statsData, setStatsData] = useState({ total: 0, high: 0, medium: 0, low: 0 });
