@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from 'axios'; 
 import './Dashboard.css';
 
+// جلب المفتاح من إعدادات البيئة في Render
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -38,7 +39,6 @@ const Dashboard = ({ onLogout }) => {
         localStorage.setItem('selectedTheme', JSON.stringify(theme));
     };
 
-    // --- التأثير الأول: التحميل الأولي وطلب إذن الإشعارات ---
     useEffect(() => {
         const savedTheme = localStorage.getItem('selectedTheme');
         if (savedTheme) {
@@ -49,57 +49,44 @@ const Dashboard = ({ onLogout }) => {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                const name = decoded?.name || decoded?.username || "شو عندك/ي اليوم؟";
+                const name = decoded?.name || decoded?.username || "صديقي";
                 setUserName(name);
                 fetchTasks(token);
                 generateAIQuote(name);
             } catch (err) { console.error("Invalid token"); }
         }
 
-        // طلب إذن الإشعارات من المتصفح
         if ("Notification" in window) {
             Notification.requestPermission();
         }
     }, []);
 
-    // --- التأثير الثاني: نظام المراقب الذكي لفحص المواعيد كل دقيقة ---
     useEffect(() => {
         const checkReminders = setInterval(() => {
-      const now = new Date();
-        
-        // --- التنسيق الصحيح باستخدام الـ Backticks ---
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const currentTime = `${hours}:${minutes}`; 
-
-        const year = now.getFullYear();
-        const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        const day = now.getDate().toString().padStart(2, '0');
-        const currentDate = `${year}-${month}-${day}`;
-
-        console.log("الفحص الحالي:", currentDate, currentTime);
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const currentTime = `${hours}:${minutes}`; 
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const currentDate = `${year}-${month}-${day}`;
 
             tasks.forEach(task => {
                 if (task.reminderDate === currentDate && task.reminderTime === currentTime) {
                     if (!task.notified) {
                         showNotification(task.text);
-                        task.notified = true; // علامة مؤقتة لمنع تكرار التنبيه في نفس الدقيقة
+                        task.notified = true;
                     }
                 }
             });
-        }, 60000); // فحص كل 60 ثانية
-
+        }, 60000);
         return () => clearInterval(checkReminders);
     }, [tasks]);
 
     const showNotification = (taskText) => {
         if (Notification.permission === "granted") {
-            new Notification("📌 تذكر موعدك!", {
-                body: taskText,
-                icon: "/favicon.ico"
-            });
-            
-            // تشغيل صوت تنبيه احترافي
+            new Notification("📌 تذكر موعدك!", { body: taskText, icon: "/favicon.ico" });
             const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
             audio.play().catch(e => console.log("Audio play error"));
         }
@@ -129,18 +116,11 @@ const Dashboard = ({ onLogout }) => {
         const token = localStorage.getItem('token');
         try {
             const res = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
-                { 
-                    text: newTask, 
-                    priority,
-                    reminderDate: taskDate,
-                    reminderTime: taskTime 
-                }, 
+                { text: newTask, priority, reminderDate: taskDate, reminderTime: taskTime }, 
                 { headers: { Authorization: token } }
             );
             setTasks(prev => [res.data, ...prev]);
-            setNewTask("");
-            setTaskDate(""); 
-            setTaskTime("");
+            setNewTask(""); setTaskDate(""); setTaskTime("");
         } catch (error) { alert("فشل الحفظ"); }
     };
 
@@ -152,51 +132,33 @@ const Dashboard = ({ onLogout }) => {
         } catch (err) { console.error("Error deleting task"); }
     };
 
-    const handleStatsClick = () => {
-        const stats = {
-            total: tasks?.length || 0,
-            high: tasks?.filter(t => t?.priority === 'high').length || 0,
-            medium: tasks?.filter(t => t?.priority === 'medium').length || 0,
-            low: tasks?.filter(t => t?.priority === 'low').length || 0,
-        };
-        setStatsData(stats);
-        setShowStats(true);
-    };
-
-    const toggleVoiceRecording = () => {
-        if (!recognition) return alert("متصفحك لا يدعم التعرف على الصوت");
-        if (isRecording) {
-            recognition.stop();
-            setIsRecording(false);
-        } else {
-            recognition.lang = 'ar-SA';
-            recognition.continuous = false;
-            recognition.interimResults = true;
-            recognition.start();
-            setIsRecording(true);
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                setNewTask(transcript);
-            };
-            recognition.onend = () => setIsRecording(false);
-            recognition.onerror = () => setIsRecording(false);
-        }
-    };
-
+    // --- تعديل ميزة التلخيص التلقائي لليوتيوب ---
     const handleYoutubeSummarize = async () => {
         const url = prompt("أدخل رابط فيديو اليوتيوب:");
         if (!url) return;
         setIsProcessing(true);
         try {
-            const res = await axios.post('https://remindme-backend3.onrender.com/api/chat/summarize-youtube', { videoUrl: url });
+            // 1. استخراج النص من اليوتيوب عبر السيرفر
+            const res = await axios.post('https://remindme-backend3.onrender.com/api/ai/youtube-text', { videoUrl: url });
+            const fullTranscript = res.data.text;
+
+            // 2. تلخيص النص باستخدام Gemini
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent(`لخص هذا النص بأسلوب نقاط واضحة وبالعربية: ${fullTranscript}`);
+            const summary = result.response.text();
+
+            // 3. حفظ الملخص كمهمة جديدة
             const token = localStorage.getItem('token');
             const saveRes = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
-                { text: `📺 ملخص فيديو:\n${res.data.summary}`, priority: "medium" },
+                { text: `📺 ملخص فيديو:\n${summary}`, priority: "medium" },
                 { headers: { Authorization: token } }
             );
             setTasks(prev => [saveRes.data, ...prev]);
-        } catch (error) { alert("حدث خطأ في التلخيص"); }
-        finally { setIsProcessing(false); }
+            alert("تم التلخيص والحفظ بنجاح! ✨");
+        } catch (error) { 
+            console.error(error);
+            alert("فشل التلخيص. تأكد من وجود ترجمة (CC) في الفيديو."); 
+        } finally { setIsProcessing(false); }
     };
 
     const handleImageUpload = async (e) => {
@@ -222,6 +184,31 @@ const Dashboard = ({ onLogout }) => {
                 setIsProcessing(false);
             };
         } catch (e) { alert("فشل تحليل الصورة"); setIsProcessing(false); }
+    };
+
+    const handleStatsClick = () => {
+        const stats = {
+            total: tasks?.length || 0,
+            high: tasks?.filter(t => t?.priority === 'high').length || 0,
+            medium: tasks?.filter(t => t?.priority === 'medium').length || 0,
+            low: tasks?.filter(t => t?.priority === 'low').length || 0,
+        };
+        setStatsData(stats);
+        setShowStats(true);
+    };
+
+    const toggleVoiceRecording = () => {
+        if (!recognition) return alert("متصفحك لا يدعم التعرف على الصوت");
+        if (isRecording) {
+            recognition.stop();
+            setIsRecording(false);
+        } else {
+            recognition.lang = 'ar-SA';
+            recognition.start();
+            setIsRecording(true);
+            recognition.onresult = (event) => setNewTask(event.results[0][0].transcript);
+            recognition.onend = () => setIsRecording(false);
+        }
     };
 
     return (
@@ -251,10 +238,10 @@ const Dashboard = ({ onLogout }) => {
                     </div>
                     <div className="ai-controls" style={{ display: 'flex', gap: '10px' }}>
                         <button onClick={handleYoutubeSummarize} className="ai-btn" style={{ background: '#FF0000', color: 'white' }}>
-                            {isProcessing ? "جاري..." : "يوتيوب 📺"}
+                            {isProcessing ? "جاري التلخيص..." : "يوتيوب 📺"}
                         </button>
                         <label className="ai-btn" style={{ background: '#4CAF50', color: 'white', cursor: 'pointer' }}>
-                            {isProcessing ? "جاري..." : "صورة 🖼️"}
+                            {isProcessing ? "جاري التحليل..." : "صورة 🖼️"}
                             <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
                         </label>
                     </div>
@@ -264,7 +251,6 @@ const Dashboard = ({ onLogout }) => {
                     <input type="text" placeholder="أضف مهمة..." value={newTask} onChange={(e) => setNewTask(e.target.value)} />
                     <input type="date" className="date-input" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} />
                     <input type="time" className="time-input" value={taskTime} onChange={(e) => setTaskTime(e.target.value)} />
-
                     <select value={priority} onChange={(e) => setPriority(e.target.value)} style={{ background: '#333', color: 'white', border: 'none', marginLeft: '10px' }}>
                         <option value="high">عالية</option>
                         <option value="medium">متوسطة</option>
@@ -286,12 +272,10 @@ const Dashboard = ({ onLogout }) => {
                             >
                                 <div className="task-body">
                                     <p style={{ whiteSpace: 'pre-line' }}>{task?.text}</p>
-                                    
                                     <div className="task-reminders">
                                         {task?.reminderDate && <span className="reminder-tag">📅 {task.reminderDate}</span>}
                                         {task?.reminderTime && <span className="reminder-tag">⏰ {task.reminderTime}</span>}
                                     </div>
-
                                     <span className="task-meta">⏰ تاريخ الإضافة: {task?.createdAt ? new Date(task.createdAt).toLocaleTimeString('ar-SA') : "الآن"}</span>
                                 </div>
                                 <button className="delete-btn" onClick={() => deleteTask(task?._id || task?.id)}>×</button>
@@ -300,6 +284,22 @@ const Dashboard = ({ onLogout }) => {
                     </AnimatePresence>
                 </div>
             </main>
+
+            {/* مودال الإحصائيات */}
+            {showStats && (
+                <div className="stats-modal-overlay" onClick={() => setShowStats(false)}>
+                    <motion.div className="stats-modal" initial={{ scale: 0.5 }} animate={{ scale: 1 }} onClick={e => e.stopPropagation()}>
+                        <h2>📊 إحصائيات مهامك</h2>
+                        <div className="stats-grid">
+                            <div className="stat-box"><span>إجمالي</span><strong>{statsData.total}</strong></div>
+                            <div className="stat-box high"><span>عالية</span><strong>{statsData.high}</strong></div>
+                            <div className="stat-box medium"><span>متوسطة</span><strong>{statsData.medium}</strong></div>
+                            <div className="stat-box low"><span>منخفضة</span><strong>{statsData.low}</strong></div>
+                        </div>
+                        <button onClick={() => setShowStats(false)}>إغلاق</button>
+                    </motion.div>
+                </div>
+            )}
 
             <motion.button 
                 className={`fab-mic ${isRecording ? 'recording' : ''}`} 
