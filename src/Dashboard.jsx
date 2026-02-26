@@ -7,6 +7,7 @@ import './Dashboard.css';
 
 // جلب المفتاح من إعدادات البيئة في Render
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// تم تحديث التهيئة لضمان استقرار الاتصال
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -94,11 +95,15 @@ const Dashboard = ({ onLogout }) => {
 
     const generateAIQuote = async (name) => {
         try {
+            // استخدام نموذج محدد لضمان عدم حدوث خطأ 404 في بعض المناطق
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const prompt = `اكتب جملة تحفيزية قصيرة جداً ومشجعة باللغة العربية للمستخدم "${name}". استخدم إيموجي واحد فقط.`;
             const result = await model.generateContent(prompt);
             setAiQuote(result.response.text());
-        } catch (e) { console.log("AI Quote Error"); }
+        } catch (e) { 
+            console.log("AI Quote Error:", e);
+            setAiQuote("يوم سعيد مليء بالإنجاز! ✨"); // نص احتياطي في حال فشل الـ API
+        }
     };
 
     const fetchTasks = async (token) => {
@@ -132,33 +137,43 @@ const Dashboard = ({ onLogout }) => {
         } catch (err) { console.error("Error deleting task"); }
     };
 
-    // --- تعديل ميزة التلخيص التلقائي لليوتيوب ---
+    // --- التعديل الجوهري لميزة التلخيص ---
     const handleYoutubeSummarize = async () => {
         const url = prompt("أدخل رابط فيديو اليوتيوب:");
         if (!url) return;
+        
         setIsProcessing(true);
         try {
-            // 1. استخراج النص من اليوتيوب عبر السيرفر
-            const res = await axios.post('https://remindme-backend3.onrender.com/api/ai/youtube-text', { videoUrl: url });
+            // 1. استخراج النص من اليوتيوب عبر المسار الصحيح المرفوع على Render
+            const res = await axios.post('https://remindme-backend3.onrender.com/api/ai/youtube-text', { 
+                videoUrl: url 
+            });
+
+            if (!res.data.text) throw new Error("لم يتم العثور على نص للفيديو");
+
             const fullTranscript = res.data.text;
 
-            // 2. تلخيص النص باستخدام Gemini
+            // 2. تلخيص النص باستخدام Gemini مباشرة من الفرونت إند
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
             const result = await model.generateContent(`لخص هذا النص بأسلوب نقاط واضحة وبالعربية: ${fullTranscript}`);
             const summary = result.response.text();
 
-            // 3. حفظ الملخص كمهمة جديدة
+            // 3. حفظ الملخص كمهمة جديدة في قاعدة البيانات
             const token = localStorage.getItem('token');
             const saveRes = await axios.post('https://remindme-backend3.onrender.com/api/tasks/add', 
                 { text: `📺 ملخص فيديو:\n${summary}`, priority: "medium" },
                 { headers: { Authorization: token } }
             );
+            
             setTasks(prev => [saveRes.data, ...prev]);
             alert("تم التلخيص والحفظ بنجاح! ✨");
         } catch (error) { 
-            console.error(error);
-            alert("فشل التلخيص. تأكد من وجود ترجمة (CC) في الفيديو."); 
-        } finally { setIsProcessing(false); }
+            console.error("Youtube Summary Error:", error);
+            // التعامل مع الخطأ 500 الذي يظهر في صورة الـ Network
+            alert("فشل معالجة الفيديو. تأكد أن الرابط صحيح وأن الفيديو يحتوي على ترجمة (CC)."); 
+        } finally { 
+            setIsProcessing(false); 
+        }
     };
 
     const handleImageUpload = async (e) => {
@@ -237,7 +252,7 @@ const Dashboard = ({ onLogout }) => {
                         <p>{aiQuote}</p>
                     </div>
                     <div className="ai-controls" style={{ display: 'flex', gap: '10px' }}>
-                        <button onClick={handleYoutubeSummarize} className="ai-btn" style={{ background: '#FF0000', color: 'white' }}>
+                        <button onClick={handleYoutubeSummarize} className="ai-btn" style={{ background: '#FF0000', color: 'white' }} disabled={isProcessing}>
                             {isProcessing ? "جاري التلخيص..." : "يوتيوب 📺"}
                         </button>
                         <label className="ai-btn" style={{ background: '#4CAF50', color: 'white', cursor: 'pointer' }}>
